@@ -1,0 +1,94 @@
+@import "tailwindcss";
+
+:root {
+  --theme-primary: #013220;
+  /* British Racing Green */
+  --theme-accent: #92141f;
+  /* Racing Red */
+  --theme-light: #F2F2F2;
+  /* White / Grey */
+}
+
+@theme {
+  --font-serif: "Playfair Display", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-sans: "Inter", system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+  --color-brand-primary: var(--theme-primary);
+  --color-brand-primary-dark: #044d1d;
+  --color-brand-accent: var(--theme-accent);
+  --color-brand-accent-dark: #b30c15;
+  --color-brand-gold: var(--theme-accent);
+  --color-brand-highlight: #e5e7eb;
+
+  --color-brand-text: #1F2937;
+  --color-brand-text-secondary: var(--theme-primary);
+  --color-brand-text-muted: #6B7280;
+
+  --color-brand-bg: #FFFFFF;
+  --color-brand-bg-alt: var(--theme-light);
+
+  --color-brand-border: #D1D5DB;
+  --color-brand-border-soft: var(--theme-light);
+}
+
+@layer base {
+  body {
+    background-color: var(--color-brand-bg);
+    color: var(--color-brand-text);
+    margin: 0;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer utilities {
+  .animate-fade-up {
+    animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .animate-smooth-reveal {
+    animation: smoothReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .premium-card {
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  }
+
+  .premium-card:hover {
+    transform: scale(1.02) translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+}
+
+@keyframes fadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes smoothReveal {
+  0% {
+    opacity: 0;
+    clip-path: inset(100% 0 0 0);
+  }
+
+  100% {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+  }
+}
