@@ -5,11 +5,13 @@ import AdminCareers from './AdminCareers';
 import AdminRewards from './AdminRewards';
 import AdminOrders from './AdminOrders';
 import AdminTheme from './AdminTheme';
+import AdminPromos from './AdminPromos';
 
 const NAV = [
   { id: 'dashboard', path: '/admin/dashboard', label: 'Dashboard', icon: '📊' },
   { id: 'theme',     path: '/admin/theme',     label: 'Theme & Colors', icon: '🎨' },
   { id: 'menu',      path: '/admin/menu',      label: 'Menu Items', icon: '🍽️' },
+  { id: 'promos',    path: '/admin/promos',    label: 'Home Promos', icon: '🌟' },
   { id: 'careers',   path: '/admin/careers',   label: 'Careers', icon: '💼' },
   { id: 'rewards',   path: '/admin/rewards',   label: 'Rewards', icon: '⭐' },
   { id: 'orders',    path: '/admin/orders',    label: 'Orders', icon: '📦' },
@@ -104,7 +106,7 @@ function Overview({ data, navigateTo }) {
 
       {/* Stats */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginBottom: '40px' }}>
-        <StatCard icon="🍽️" label="Menu Items" value={totalMenu} color="#92141f" sub="Bites, Bowls & Desserts" onClick={() => navigateTo('menu')} />
+        <StatCard icon="🍽️" label="Menu Items" value={totalMenu} color="#92141f" sub="All Categories" onClick={() => navigateTo('menu')} />
         <StatCard icon="💼" label="Active Jobs" value={activeCareers} color="#2563eb" sub="Open positions" onClick={() => navigateTo('careers')} />
         <StatCard icon="⭐" label="Rewards" value={activeRewards} color="#b8860b" sub="Active offers" onClick={() => navigateTo('rewards')} />
         <StatCard icon="📦" label="Orders" value={totalOrders} color="#059669" sub={subOrderText} onClick={() => navigateTo('orders')} />
@@ -218,6 +220,7 @@ export default function AdminDashboard({ currentPath, setCurrentPath, onLogout }
       case 'dashboard': return <Overview data={data} navigateTo={navigateTo} />;
       case 'theme':     return <AdminTheme />;
       case 'menu':      return <AdminMenuItems />;
+      case 'promos':    return <AdminPromos />;
       case 'careers':   return <AdminCareers />;
       case 'rewards':   return <AdminRewards />;
       case 'orders':    return <AdminOrders />;

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useAdminData } from './context/AdminDataContext';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Home from './components/Home';
@@ -19,23 +20,34 @@ function App() {
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
   const [adminAuthed, setAdminAuthed] = useState(() => sessionStorage.getItem('ccf_admin_auth') === 'true');
 
+  const { data } = useAdminData();
+
   useEffect(() => {
-    const saved = localStorage.getItem('ccf_theme_colors');
-    if (saved) {
-      try {
-        const { primary, accent, light } = JSON.parse(saved);
-        if (primary) document.documentElement.style.setProperty('--theme-primary', primary);
-        if (accent) document.documentElement.style.setProperty('--theme-accent', accent);
-        if (light) document.documentElement.style.setProperty('--theme-light', light);
-      } catch (e) {}
+    if (data && data.theme) {
+      const { primary, accent, light } = data.theme;
+      if (primary) document.documentElement.style.setProperty('--theme-primary', primary);
+      if (accent) document.documentElement.style.setProperty('--theme-accent', accent);
+      if (light) document.documentElement.style.setProperty('--theme-light', light);
+    } else {
+      // Fallback to local storage if API fails or no theme is active
+      const saved = localStorage.getItem('ccf_theme_colors');
+      if (saved) {
+        try {
+          const { primary, accent, light } = JSON.parse(saved);
+          if (primary) document.documentElement.style.setProperty('--theme-primary', primary);
+          if (accent) document.documentElement.style.setProperty('--theme-accent', accent);
+          if (light) document.documentElement.style.setProperty('--theme-light', light);
+        } catch (e) {}
+      }
     }
+
     const onLocationChange = () => {
       setCurrentPath(window.location.pathname);
       setAdminAuthed(sessionStorage.getItem('ccf_admin_auth') === 'true');
     };
     window.addEventListener('popstate', onLocationChange);
     return () => window.removeEventListener('popstate', onLocationChange);
-  }, []);
+  }, [data.theme]);
 
   const handleLogin = () => {
     sessionStorage.setItem('ccf_admin_auth', 'true');

@@ -28,13 +28,22 @@ export default function Careers() {
   const handleApplyClick = (career) => {
     setApplyingFor(career);
     setSubmitted(false);
-    setFormData({ name: '', email: '', phone: '', cnic: '', questionnaire: '', cv: null, image: null });
+    setFormData({ name: '', email: '', phone: '', cnic: '', questionnaire: '', cv: null, image: null, imageUrl: null });
   };
 
   const handleInputChange = (e) => {
     const { name, value, type, files } = e.target;
     if (type === 'file') {
-      setFormData(prev => ({ ...prev, [name]: files[0] }));
+      const file = files[0];
+      if (name === 'image' && file) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setFormData(prev => ({ ...prev, image: file, imageUrl: reader.result }));
+        };
+        reader.readAsDataURL(file);
+      } else {
+        setFormData(prev => ({ ...prev, [name]: file }));
+      }
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
@@ -52,6 +61,7 @@ export default function Careers() {
       questionnaire: formData.questionnaire,
       cvName: formData.cv ? formData.cv.name : 'No file',
       imageName: formData.image ? formData.image.name : 'No file',
+      imageUrl: formData.imageUrl || null,
     };
     addApplication(newApp);
     setSubmitted(true);

@@ -165,9 +165,14 @@ export default function AdminCareers() {
                   </td>
                   <td style={{ padding: '14px 16px', fontSize: '13px', color: '#555' }}>{app.cnic}</td>
                   <td style={{ padding: '14px 16px', fontSize: '12px' }}>
-                    <div style={{ display: 'flex', gap: '4px', flexDirection: 'column' }}>
-                      <span style={{ background: '#eff6ff', color: '#2563eb', padding: '2px 6px', borderRadius: '4px' }}>📄 {app.cvName}</span>
-                      <span style={{ background: '#f3f4f6', color: '#4b5563', padding: '2px 6px', borderRadius: '4px' }}>🖼️ {app.imageName}</span>
+                    <div style={{ display: 'flex', gap: '8px', flexDirection: 'column' }}>
+                      <span style={{ background: '#eff6ff', color: '#2563eb', padding: '4px 8px', borderRadius: '4px', display: 'inline-block' }}>📄 {app.cvName}</span>
+                      <div style={{ background: '#f3f4f6', color: '#4b5563', padding: '4px 8px', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span style={{ flex: 1 }}>🖼️ {app.imageName}</span>
+                        {app.imageUrl && (
+                          <img src={app.imageUrl} alt="Applicant" style={{ width: '44px', height: '44px', borderRadius: '6px', objectFit: 'cover', border: '1px solid #ddd' }} />
+                        )}
+                      </div>
                     </div>
                   </td>
                 </tr>

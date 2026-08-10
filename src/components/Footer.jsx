@@ -126,10 +126,10 @@ const Footer = () => {
             </nav>
           </div>
 
-          {/* ── Column 3: Contact ── */}
+          {/* ── Column 3: Contact & Info ── */}
           <div>
             <h4 className="text-xs font-bold uppercase tracking-[0.2em] mb-6" style={{ color: '#d4b896' }}>
-              Contact &amp; Support
+              Location Info
             </h4>
             <ul className="space-y-4">
               {/* Address */}
@@ -141,9 +141,23 @@ const Footer = () => {
                   </svg>
                 </span>
                 <address className="not-italic text-sm leading-relaxed" style={{ color: '#b8ccbe' }}>
-                  26901 Malibu Hills Road<br />
-                  Calabasas Hills, CA 91301
+                  <span className="block mb-1"><strong>Located in:</strong> Crescent Tower</span>
+                  buhaira corniche - Al Majaz 3 - Al Majaz<br />
+                  Sharjah - United Arab Emirates
                 </address>
+              </li>
+
+              {/* Service Options */}
+              <li className="flex gap-3 items-start">
+                <span className="shrink-0 mt-0.5" style={{ color: 'var(--theme-accent)' }}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20 6L9 17l-5-5" />
+                  </svg>
+                </span>
+                <span className="text-sm leading-relaxed" style={{ color: '#b8ccbe' }}>
+                  <strong>Service options:</strong><br />
+                  Outdoor seating · Vegetarian options · Kids' menu
+                </span>
               </li>
 
               {/* Phone */}
@@ -154,36 +168,33 @@ const Footer = () => {
                   </svg>
                 </span>
                 <a
-                  href="tel:+18188713000"
+                  href="tel:+971502985578"
                   className="text-sm font-semibold transition-colors duration-200"
                   style={{ color: '#b8ccbe' }}
                   onMouseEnter={e => e.currentTarget.style.color = '#ffffff'}
                   onMouseLeave={e => e.currentTarget.style.color = '#b8ccbe'}
                 >
-                  (818) 871-3000
+                  +971 50 298 5578
                 </a>
               </li>
 
-              {/* Email */}
+              {/* Reservations */}
               <li className="flex gap-3 items-start">
                 <span className="shrink-0 mt-0.5" style={{ color: 'var(--theme-accent)' }}>
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <rect width="20" height="16" x="2" y="4" rx="2" />
-                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>
                   </svg>
                 </span>
-                <a
-                  href="mailto:guestrelations@thecheesecakefactory.com"
-                  className="text-sm transition-colors duration-200 break-all leading-snug"
-                  style={{ color: '#b8ccbe' }}
-                  onMouseEnter={e => e.currentTarget.style.color = '#ffffff'}
-                  onMouseLeave={e => e.currentTarget.style.color = '#b8ccbe'}
-                >
-                  guestrelations@<wbr />thecheesecakefactory.com
-                </a>
+                <span className="text-sm leading-relaxed" style={{ color: '#b8ccbe' }}>
+                  <strong>Reservations:</strong>{' '}
+                  <a href="https://district.in" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors duration-200">
+                    district.in
+                  </a>
+                  {' '}· Providers
+                </span>
               </li>
 
-              {/* Hours */}
+              {/* Hours & Price */}
               <li className="flex gap-3 items-start mt-1">
                 <span className="shrink-0 mt-0.5" style={{ color: 'var(--theme-accent)' }}>
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -192,9 +203,20 @@ const Footer = () => {
                   </svg>
                 </span>
                 <span className="text-sm leading-relaxed" style={{ color: '#b8ccbe' }}>
-                  Mon–Thu: 11am – 11pm<br />
-                  Fri–Sun: 11am – 12:30am
+                  <strong>Hours:</strong> Open · Closes 12 am<br />
+                  <strong>Price per person:</strong> AED 1–50<br />
+                  <span className="opacity-70 text-xs mt-1 block">Reported by 100 people</span>
                 </span>
+              </li>
+              
+              {/* Actions */}
+              <li className="flex gap-2 flex-wrap mt-2 text-xs" style={{ color: '#d4b896' }}>
+                <button type="button" className="hover:text-white transition-colors">Suggest an edit</button>
+                <span className="opacity-50">·</span>
+                <button type="button" className="hover:text-white transition-colors">Own this business?</button>
+                <button type="button" className="hover:text-white transition-colors">Add missing information</button>
+                <span className="opacity-50">·</span>
+                <button type="button" className="hover:text-white transition-colors">Add website</button>
               </li>
             </ul>
           </div>

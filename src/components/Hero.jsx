@@ -1,7 +1,11 @@
 import React from 'react';
 import { Sparkles, ArrowRight, Award, UtensilsCrossed, Clock, Star } from 'lucide-react';
+import { useAdminData } from '../context/AdminDataContext';
 
 const Hero = () => {
+  const { data } = useAdminData();
+  const promo = data?.promos?.find(p => p.name === 'Hero') || {};
+
   const navigateTo = (e, path) => {
     e.preventDefault();
     window.history.pushState(null, '', path);
@@ -30,19 +34,18 @@ const Hero = () => {
             </div>
 
             {/* Main Headline */}
-            <h1 className="font-serif text-5xl sm:text-6xl md:text-7xl xl:text-8xl font-bold text-[var(--theme-primary)] leading-[1.05] tracking-tight mb-6">
-              Any Slice, <br />
+            <h1 className="font-serif text-5xl sm:text-6xl md:text-7xl xl:text-8xl font-bold text-[var(--theme-primary)] leading-[1.05] tracking-tight mb-6" dangerouslySetInnerHTML={{ __html: promo.title || `Any Slice, <br />
               <span className="italic font-normal text-[var(--theme-accent)] relative inline-block">
                 Half Price*
                 <svg className="absolute -bottom-2 left-0 w-full h-3 text-[var(--theme-accent)]/40" viewBox="0 0 200 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M2 9.5C50 2.5 150 2.5 198 9.5" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
                 </svg>
-              </span>
+              </span>`}}>
             </h1>
 
             {/* Subtitle */}
             <p className="text-gray-700 text-lg sm:text-xl md:text-2xl font-normal mb-8 max-w-xl leading-relaxed">
-              Dine In And Get Any Slice, Half Price*! Choose From Over <strong className="font-extrabold text-[var(--theme-primary)]">30 Legendary Cheesecakes</strong> and specialty scratch-made desserts.
+              {promo.description || <>Dine In And Get Any Slice, Half Price*! Choose From Over <strong className="font-extrabold text-[var(--theme-primary)]">30 Legendary Cheesecakes</strong> and specialty scratch-made desserts.</>}
             </p>
 
             {/* Action Buttons */}
@@ -93,16 +96,23 @@ const Hero = () => {
               {/* Main Glowing Frame */}
               <div className="relative z-10 rounded-3xl overflow-hidden shadow-2xl border-4 border-white bg-white group transform hover:scale-[1.02] transition-transform duration-500">
                 <img
-                  src="https://i.pinimg.com/1200x/03/4e/90/034e90d4c5772884ac25bd668599f50e.jpg"
+                  src={promo.imageUrl || "https://i.pinimg.com/1200x/03/4e/90/034e90d4c5772884ac25bd668599f50e.jpg"}
                   alt="Legendary Strawberry Cheesecake Slice"
                   className="w-full h-[380px] sm:h-[450px] lg:h-[520px] object-cover object-center group-hover:scale-105 transition-transform duration-700"
                 />
 
                 {/* Overlay Gradient on Image */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-6 md:p-8 text-white">
-                  <div className="inline-block bg-[var(--theme-accent)] text-white text-[10px] font-extrabold tracking-[0.2em] uppercase px-3 py-1 rounded-sm w-max mb-2 shadow-md">
-                    MOST POPULAR SLICE
-                  </div>
+                  {promo.subtitle && (
+                    <div className="inline-block bg-[var(--theme-accent)] text-white text-[10px] font-extrabold tracking-[0.2em] uppercase px-3 py-1 rounded-sm w-max mb-2 shadow-md">
+                      {promo.subtitle}
+                    </div>
+                  )}
+                  {!promo.subtitle && (
+                    <div className="inline-block bg-[var(--theme-accent)] text-white text-[10px] font-extrabold tracking-[0.2em] uppercase px-3 py-1 rounded-sm w-max mb-2 shadow-md">
+                      MOST POPULAR SLICE
+                    </div>
+                  )}
                   <h3 className="font-serif text-2xl sm:text-3xl font-bold leading-tight">
                     Fresh Strawberry Cheesecake
                   </h3>

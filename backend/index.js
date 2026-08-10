@@ -15,6 +15,12 @@ app.use('/api/careers', require('./routes/careerRoutes'));
 app.use('/api/rewards', require('./routes/rewardRoutes'));
 app.use('/api/orders', require('./routes/orderRoutes'));
 app.use('/api/themes', require('./routes/themeRoutes'));
+app.use('/api/promos', require('./routes/promoRoutes'));
+app.use('/api/upload', require('./routes/uploadRoutes'));
+
+// Serve static files from the uploads directory
+const path = require('path');
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const PORT = process.env.PORT || 5000;
 

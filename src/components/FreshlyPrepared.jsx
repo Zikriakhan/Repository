@@ -1,7 +1,11 @@
 import React from 'react';
 import { ChefHat, ArrowRight, ShieldCheck, HeartHandshake, Sparkles, UtensilsCrossed } from 'lucide-react';
+import { useAdminData } from '../context/AdminDataContext';
 
 const FreshlyPrepared = () => {
+  const { data } = useAdminData();
+  const promo = data?.promos?.find(p => p.name === 'FreshlyPrepared') || {};
+
   const navigateTo = (e, path) => {
     if (e) e.preventDefault();
     window.history.pushState(null, '', path);
@@ -20,16 +24,15 @@ const FreshlyPrepared = () => {
             <div>
               <div className="inline-flex items-center gap-2 bg-white text-[var(--theme-primary)] px-4 py-1.5 rounded-full text-xs font-extrabold tracking-[0.2em] uppercase mb-6 shadow-sm border border-gray-200/60">
                 <ChefHat size={16} className="text-[var(--theme-accent)]" />
-                <span>TASTE THE DIFFERENCE • OUR PHILOSOPHY</span>
+                <span>{promo.subtitle || 'TASTE THE DIFFERENCE • OUR PHILOSOPHY'}</span>
               </div>
 
-              <h2 className="font-serif text-[var(--theme-primary)] text-4xl sm:text-5xl md:text-6xl font-bold mb-6 leading-tight">
-                Freshly Prepared <br />
-                <span className="text-[var(--theme-accent)] italic font-normal">Every Day,</span> From Scratch
+              <h2 className="font-serif text-[var(--theme-primary)] text-4xl sm:text-5xl md:text-6xl font-bold mb-6 leading-tight" dangerouslySetInnerHTML={{ __html: promo.title || `Freshly Prepared <br />
+                <span className="text-[var(--theme-accent)] italic font-normal">Every Day,</span> From Scratch` }}>
               </h2>
 
               <p className="text-gray-700 text-base sm:text-lg md:text-xl font-normal leading-relaxed mb-8 max-w-xl">
-                Our menu features more than <strong className="font-extrabold text-[var(--theme-primary)]">250 dishes</strong>, freshly prepared from scratch every single day. We use only the finest ingredients, local dairy, and premium meats to ensure every bite is extraordinary.
+                {promo.description || <>Our menu features more than <strong className="font-extrabold text-[var(--theme-primary)]">250 dishes</strong>, freshly prepared from scratch every single day. We use only the finest ingredients, local dairy, and premium meats to ensure every bite is extraordinary.</>}
               </p>
 
               {/* 3 Pillar Stats Boxes */}
@@ -69,7 +72,7 @@ const FreshlyPrepared = () => {
                 className="bg-white hover:bg-gray-50 text-[var(--theme-accent)] border-2 border-[var(--theme-accent)] px-8 py-4 rounded-xl font-bold tracking-[0.15em] uppercase text-xs sm:text-sm shadow-md transition-colors flex items-center justify-center gap-2"
               >
                 <UtensilsCrossed size={18} />
-                <span>Order Takeout Now</span>
+                <span>{promo.buttonText || 'Order Takeout Now'}</span>
               </button>
             </div>
 
@@ -78,8 +81,8 @@ const FreshlyPrepared = () => {
           {/* Right Column: Visual Showcase */}
           <div className="lg:col-span-5 relative min-h-[350px] sm:min-h-[450px] lg:min-h-full overflow-hidden bg-gray-900 group">
             <img
-              src="https://i.pinimg.com/736x/be/83/66/be836686c8d7a40b40a44f88c0c7550f.jpg"
-              alt="Freshly Prepared Sandwiches and Dishes"
+              src={promo.imageUrl || "https://i.pinimg.com/736x/be/83/66/be836686c8d7a40b40a44f88c0c7550f.jpg"}
+              alt={promo.title || "Freshly Prepared Sandwiches and Dishes"}
               className="w-full h-full object-cover object-center transform group-hover:scale-105 transition-transform duration-700"
             />
 

@@ -6,15 +6,17 @@ export function useAdminData() {
   return useContext(AdminDataContext);
 }
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'http://localhost:5000/api'; // Changed for local backend testing
 
 export function AdminDataProvider({ children }) {
   const [data, setData] = useState({
-    menuItems: { bites: [], bowls: [], desserts: [] },
+    menuItems: { bites: [], bowls: [], desserts: [], breakfast: [] },
     careers: [],
     rewards: [],
     orders: [],
-    applications: []
+    applications: [],
+    promos: [],
+    theme: null
   });
   const [loading, setLoading] = useState(true);
 
@@ -22,17 +24,22 @@ export function AdminDataProvider({ children }) {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [menuRes, careersRes, rewardsRes, ordersRes] = await Promise.all([
+      const [menuRes, careersRes, rewardsRes, ordersRes, promosRes, themesRes] = await Promise.all([
         fetch(`${API_URL}/menu`),
         fetch(`${API_URL}/careers`),
         fetch(`${API_URL}/rewards`),
-        fetch(`${API_URL}/orders`)
+        fetch(`${API_URL}/orders`),
+        fetch(`${API_URL}/promos`),
+        fetch(`${API_URL}/themes`)
       ]);
 
       const menuData = await menuRes.json();
       const careers = await careersRes.json();
       const rewards = await rewardsRes.json();
       const orders = await ordersRes.json();
+      const promos = await promosRes.json();
+      const themes = await themesRes.json();
+      const activeTheme = themes.find(t => t.active) || (themes.length > 0 ? themes[0] : null);
 
       // Group menu items by category
       const groupedMenu = menuData.reduce((acc, item) => {
@@ -40,14 +47,16 @@ export function AdminDataProvider({ children }) {
         // Map _id to id for frontend compatibility
         acc[item.category].push({ ...item, id: item._id });
         return acc;
-      }, { bites: [], bowls: [], desserts: [] });
+      }, { bites: [], bowls: [], desserts: [], breakfast: [] });
 
       setData(prev => ({
         ...prev,
         menuItems: groupedMenu,
         careers: careers.map(c => ({ ...c, id: c._id })),
         rewards: rewards.map(r => ({ ...r, id: r._id })),
-        orders: orders.map(o => ({ ...o, id: o._id }))
+        orders: orders.map(o => ({ ...o, id: o._id })),
+        promos: promos,
+        theme: activeTheme
       }));
     } catch (err) {
       console.error('Failed to fetch admin data:', err);
@@ -76,7 +85,7 @@ export function AdminDataProvider({ children }) {
       });
       const newItem = await res.json();
       newItem.id = newItem._id;
-      
+
       updateState(prev => ({
         menuItems: {
           ...prev.menuItems,
@@ -95,7 +104,7 @@ export function AdminDataProvider({ children }) {
       });
       const updatedItem = await res.json();
       updatedItem.id = updatedItem._id;
-      
+
       updateState(prev => ({
         menuItems: {
           ...prev.menuItems,
@@ -212,9 +221,52 @@ export function AdminDataProvider({ children }) {
     } catch (err) { console.error(err); }
   };
 
+  // --- Promos ---
+  const updatePromo = async (name, updates) => {
+    try {
+      const res = await fetch(`${API_URL}/promos/${name}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
+      });
+      const updatedPromo = await res.json();
+      
+      updateState(prev => {
+        const exists = prev.promos.find(p => p.name === name);
+        if (exists) {
+          return { promos: prev.promos.map(p => p.name === name ? updatedPromo : p) };
+        } else {
+          return { promos: [...prev.promos, updatedPromo] };
+        }
+      });
+    } catch (err) { console.error(err); }
+  };
+
+  // --- Themes ---
+  const updateTheme = async (themeData) => {
+    try {
+      let res;
+      if (data.theme && data.theme._id) {
+        res = await fetch(`${API_URL}/themes/${data.theme._id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...themeData, active: true })
+        });
+      } else {
+        res = await fetch(`${API_URL}/themes`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...themeData, active: true })
+        });
+      }
+      const updatedTheme = await res.json();
+      updateState(prev => ({ theme: updatedTheme }));
+    } catch (err) { console.error(err); }
+  };
+
   // --- Applications --- (Local for now)
-  const addApplication = (application) => updateState(prev => ({ 
-    applications: [...prev.applications, { ...application, id: `_${Math.random().toString(36).slice(2, 9)}`, date: new Date().toISOString() }] 
+  const addApplication = (application) => updateState(prev => ({
+    applications: [...prev.applications, { ...application, id: `_${Math.random().toString(36).slice(2, 9)}`, date: new Date().toISOString() }]
   }));
 
   const resetToDefaults = async () => {
@@ -229,6 +281,8 @@ export function AdminDataProvider({ children }) {
       addCareer, updateCareer, deleteCareer,
       addReward, updateReward, deleteReward,
       addOrder, updateOrderStatus,
+      updatePromo,
+      updateTheme,
       addApplication, resetToDefaults
     }}>
       {children}

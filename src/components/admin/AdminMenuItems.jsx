@@ -1,20 +1,45 @@
 import React, { useState } from 'react';
 import { useAdminData } from '../../context/AdminDataContext';
 
-const CATEGORY_LABELS = { bites: 'Bites', bowls: 'Bowls', desserts: 'Desserts' };
+
 
 const EMPTY_ITEM = { name: '', price: '', calories: '', rating: 4.5, desc: '', image: '', active: true };
 
 function ItemFormModal({ category, initial, onSave, onClose }) {
   const [form, setForm] = useState(initial || EMPTY_ITEM);
+  const [uploading, setUploading] = useState(false);
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
   const isEdit = !!initial?.id;
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('image', file);
+
+    setUploading(true);
+    try {
+      const res = await fetch('http://localhost:5000/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.url) {
+        set('image', data.url);
+      }
+    } catch (err) {
+      console.error('Image upload failed:', err);
+    } finally {
+      setUploading(false);
+    }
+  };
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
       <div style={{ background: '#fff', borderRadius: '16px', padding: '36px', width: '100%', maxWidth: '560px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 32px 80px rgba(0,0,0,0.3)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px' }}>
-          <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 700, color: '#3a1e26' }}>{isEdit ? 'Edit Item' : `Add New ${CATEGORY_LABELS[category]} Item`}</h2>
+          <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 700, color: '#3a1e26' }}>{isEdit ? 'Edit Item' : `Add New ${category.charAt(0).toUpperCase() + category.slice(1)} Item`}</h2>
           <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', color: '#888', lineHeight: 1 }}>×</button>
         </div>
 
@@ -26,15 +51,33 @@ function ItemFormModal({ category, initial, onSave, onClose }) {
         ].map(({ label, key, type, placeholder }) => (
           <div key={key} style={{ marginBottom: '16px' }}>
             <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#666', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>{label}</label>
-            <input
-              type={type}
-              value={form[key]}
-              onChange={e => set(key, e.target.value)}
-              placeholder={placeholder}
-              style={{ width: '100%', padding: '10px 14px', border: '1.5px solid #e5e7eb', borderRadius: '8px', fontSize: '14px', boxSizing: 'border-box', outline: 'none', transition: 'border 0.2s' }}
-              onFocus={e => e.target.style.borderColor = '#92141f'}
-              onBlur={e => e.target.style.borderColor = '#e5e7eb'}
-            />
+            {key === 'image' ? (
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <input
+                  type={type}
+                  value={form[key]}
+                  onChange={e => set(key, e.target.value)}
+                  placeholder={placeholder}
+                  style={{ flex: 1, padding: '10px 14px', border: '1.5px solid #e5e7eb', borderRadius: '8px', fontSize: '14px', boxSizing: 'border-box', outline: 'none', transition: 'border 0.2s' }}
+                  onFocus={e => e.target.style.borderColor = '#92141f'}
+                  onBlur={e => e.target.style.borderColor = '#e5e7eb'}
+                />
+                <label style={{ cursor: 'pointer', padding: '10px 16px', background: '#f3f4f6', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '13px', fontWeight: 600, color: '#374151', display: 'flex', alignItems: 'center' }}>
+                  {uploading ? 'Uploading...' : 'Upload'}
+                  <input type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} disabled={uploading} />
+                </label>
+              </div>
+            ) : (
+              <input
+                type={type}
+                value={form[key]}
+                onChange={e => set(key, e.target.value)}
+                placeholder={placeholder}
+                style={{ width: '100%', padding: '10px 14px', border: '1.5px solid #e5e7eb', borderRadius: '8px', fontSize: '14px', boxSizing: 'border-box', outline: 'none', transition: 'border 0.2s' }}
+                onFocus={e => e.target.style.borderColor = '#92141f'}
+                onBlur={e => e.target.style.borderColor = '#e5e7eb'}
+              />
+            )}
           </div>
         ))}
 
@@ -106,7 +149,7 @@ export default function AdminMenuItems() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '28px', flexWrap: 'wrap', gap: '16px' }}>
         <div>
           <h1 style={{ margin: '0 0 4px', fontSize: '26px', fontWeight: 700, color: '#1a0a10' }}>Menu Items</h1>
-          <p style={{ margin: 0, color: '#888', fontSize: '14px' }}>Manage all Bites, Bowls & Dessert items — changes appear live on the website.</p>
+          <p style={{ margin: 0, color: '#888', fontSize: '14px' }}>Manage all menu items — changes appear live on the website.</p>
         </div>
         <button
           onClick={() => setModal({ mode: 'add' })}
@@ -118,9 +161,9 @@ export default function AdminMenuItems() {
 
       {/* Category Tabs */}
       <div style={{ display: 'flex', gap: '10px', marginBottom: '24px', flexWrap: 'wrap' }}>
-        {Object.keys(CATEGORY_LABELS).map(tab => (
+        {Object.keys(data.menuItems || {}).map(tab => (
           <button key={tab} onClick={() => setActiveTab(tab)} style={tabStyle(tab)}>
-            {CATEGORY_LABELS[tab]} ({(data.menuItems[tab] || []).length})
+            {tab.charAt(0).toUpperCase() + tab.slice(1)} ({(data.menuItems[tab] || []).length})
           </button>
         ))}
       </div>

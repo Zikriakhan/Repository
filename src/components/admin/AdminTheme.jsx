@@ -1,24 +1,32 @@
 import React, { useState, useEffect } from 'react';
+import { useAdminData } from '../../context/AdminDataContext';
 
 export default function AdminTheme() {
+  const { data, updateTheme } = useAdminData();
   const [primaryColor, setPrimaryColor] = useState('#06732C'); // British Racing Green
   const [accentColor, setAccentColor] = useState('#92141f');  // Racing Red
   const [lightColor, setLightColor] = useState('#F2F2F2');   // White / Soft Grey
   const [savedMessage, setSavedMessage] = useState('');
 
   useEffect(() => {
-    const saved = localStorage.getItem('ccf_theme_colors');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (parsed.primary) setPrimaryColor(parsed.primary);
-        if (parsed.accent) setAccentColor(parsed.accent);
-        if (parsed.light) setLightColor(parsed.light);
-      } catch (e) {
-        console.error('Error parsing theme colors:', e);
+    if (data && data.theme) {
+      if (data.theme.primary) setPrimaryColor(data.theme.primary);
+      if (data.theme.accent) setAccentColor(data.theme.accent);
+      if (data.theme.light) setLightColor(data.theme.light);
+    } else {
+      const saved = localStorage.getItem('ccf_theme_colors');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (parsed.primary) setPrimaryColor(parsed.primary);
+          if (parsed.accent) setAccentColor(parsed.accent);
+          if (parsed.light) setLightColor(parsed.light);
+        } catch (e) {
+          console.error('Error parsing theme colors:', e);
+        }
       }
     }
-  }, []);
+  }, [data.theme]);
 
   const applyColors = (prim, acc, lgt) => {
     document.documentElement.style.setProperty('--theme-primary', prim);
@@ -39,19 +47,20 @@ export default function AdminTheme() {
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const themeData = {
       primary: primaryColor,
       accent: accentColor,
       light: lightColor
     };
+    await updateTheme(themeData);
     localStorage.setItem('ccf_theme_colors', JSON.stringify(themeData));
     applyColors(primaryColor, accentColor, lightColor);
     setSavedMessage('✨ Theme saved and synchronized across all pages!');
     setTimeout(() => setSavedMessage(''), 4000);
   };
 
-  const handleResetDefault = () => {
+  const handleResetDefault = async () => {
     const defPrim = '#06732C';
     const defAcc = '#92141f';
     const defLgt = '#F2F2F2';
@@ -59,7 +68,11 @@ export default function AdminTheme() {
     setAccentColor(defAcc);
     setLightColor(defLgt);
     applyColors(defPrim, defAcc, defLgt);
-    localStorage.setItem('ccf_theme_colors', JSON.stringify({ primary: defPrim, accent: defAcc, light: defLgt }));
+    
+    const themeData = { primary: defPrim, accent: defAcc, light: defLgt };
+    await updateTheme(themeData);
+    localStorage.setItem('ccf_theme_colors', JSON.stringify(themeData));
+    
     setSavedMessage('🔄 Restored default British Racing Green palette!');
     setTimeout(() => setSavedMessage(''), 4000);
   };

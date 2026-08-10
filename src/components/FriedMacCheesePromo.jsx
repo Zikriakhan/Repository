@@ -1,8 +1,11 @@
 import React from 'react';
 import { Utensils, ArrowRight, Sparkles, CheckCircle2 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { useAdminData } from '../context/AdminDataContext';
 
 const FriedMacCheesePromo = () => {
+  const { data } = useAdminData();
+  const promo = data?.promos?.find(p => p.name === 'FriedMacCheesePromo') || {};
   const { addToCart } = useCart();
 
   const navigateTo = (e, path) => {
@@ -13,14 +16,18 @@ const FriedMacCheesePromo = () => {
 
   const handleQuickOrder = (e) => {
     e.stopPropagation();
+    const itemName = promo.title || "Aesthetic Penne Pasta";
+    const itemPrice = promo.price ? `$${parseFloat(promo.price).toFixed(2)}` : "$16.50";
+    const itemNumPrice = promo.price ? parseFloat(promo.price) : 16.50;
+    
     addToCart({
-      name: "Aesthetic Penne Pasta",
-      price: "$16.50",
-      numPrice: 16.50,
-      img: "https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?q=80&w=600&auto=format&fit=crop",
-      desc: "Fresh penne pasta tossed in a creamy aesthetic tomato basil sauce, garnished with parmesan and fresh herbs."
+      name: itemName,
+      price: itemPrice,
+      numPrice: itemNumPrice,
+      img: promo.imageUrl || "https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?q=80&w=600&auto=format&fit=crop",
+      desc: promo.description || "Fresh penne pasta tossed in a creamy aesthetic tomato basil sauce, garnished with parmesan and fresh herbs."
     });
-    alert("🎉 Aesthetic Penne Pasta added to your bag!");
+    alert(`🎉 ${itemName} added to your bag!`);
   };
 
   return (
@@ -32,8 +39,8 @@ const FriedMacCheesePromo = () => {
           {/* Left Column: Visual Showcase */}
           <div className="lg:col-span-6 relative min-h-[350px] sm:min-h-[450px] lg:min-h-[550px] overflow-hidden bg-gray-100 group order-2 lg:order-1">
             <img
-              src="https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?q=80&w=600&auto=format&fit=crop"
-              alt="Aesthetic Penne Pasta"
+              src={promo.imageUrl || "https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?q=80&w=600&auto=format&fit=crop"}
+              alt={promo.title || "Aesthetic Penne Pasta"}
               className="w-full h-full object-cover object-center transform group-hover:scale-105 transition-transform duration-700"
             />
 
@@ -51,18 +58,19 @@ const FriedMacCheesePromo = () => {
 
             <div>
               <div className="inline-flex items-center gap-2 text-[var(--theme-accent)] font-extrabold tracking-[0.2em] uppercase text-xs mb-4">
-                <span>TIMELESS CLASSIC</span>
-                <span>•</span>
-                <span>SINCE 1978</span>
+                {promo.subtitle ? <span>{promo.subtitle}</span> : <>
+                  <span>TIMELESS CLASSIC</span>
+                  <span>•</span>
+                  <span>SINCE 1978</span>
+                </>}
               </div>
 
-              <h2 className="font-serif text-[var(--theme-primary)] text-4xl sm:text-5xl md:text-6xl font-bold leading-tight mb-6">
-                Aesthetic Penne <br />
-                <span className="text-[var(--theme-accent)] italic font-normal">&amp; Pasta</span>
+              <h2 className="font-serif text-[var(--theme-primary)] text-4xl sm:text-5xl md:text-6xl font-bold leading-tight mb-6" dangerouslySetInnerHTML={{ __html: promo.title || `Aesthetic Penne <br />
+                <span className="text-[var(--theme-accent)] italic font-normal">&amp; Pasta</span>` }}>
               </h2>
 
               <p className="text-gray-600 text-base sm:text-lg font-normal leading-relaxed mb-8">
-                Fresh penne pasta tossed in a creamy aesthetic tomato basil sauce, garnished with parmesan and fresh herbs. A beautiful and delicious Italian classic!
+                {promo.description || 'Fresh penne pasta tossed in a creamy aesthetic tomato basil sauce, garnished with parmesan and fresh herbs. A beautiful and delicious Italian classic!'}
               </p>
 
               {/* Bullet Points */}
@@ -89,7 +97,7 @@ const FriedMacCheesePromo = () => {
                 className="flex-1 bg-[var(--theme-accent)] hover:opacity-90 text-white px-8 py-4 rounded-xl font-bold tracking-[0.15em] uppercase text-xs sm:text-sm shadow-lg hover:shadow-xl transition-all transform active:scale-95 flex items-center justify-center gap-3"
               >
                 <Utensils size={18} />
-                <span>Order Now ($16.50)</span>
+                <span>{promo.buttonText || `Order Now ($${promo.price || '16.50'})`}</span>
               </button>
 
               <button

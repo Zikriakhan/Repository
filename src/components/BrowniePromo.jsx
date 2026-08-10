@@ -1,8 +1,11 @@
 import React from 'react';
 import { Sparkles, ArrowRight, Star, Heart } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { useAdminData } from '../context/AdminDataContext';
 
 const BrowniePromo = () => {
+  const { data } = useAdminData();
+  const promo = data?.promos?.find(p => p.name === 'BrowniePromo') || {};
   const { addToCart } = useCart();
 
   const navigateTo = (e, path) => {
@@ -13,14 +16,18 @@ const BrowniePromo = () => {
 
   const handleQuickAdd = (e) => {
     e.stopPropagation();
+    const itemName = promo.title || "Classic Italian Lasagna";
+    const itemPrice = promo.price ? `$${parseFloat(promo.price).toFixed(2)}` : "$18.95";
+    const itemNumPrice = promo.price ? parseFloat(promo.price) : 18.95;
+    
     addToCart({
-      name: "Classic Italian Lasagna",
-      price: "$18.95",
-      numPrice: 18.95,
-      img: "https://images.unsplash.com/photo-1574894709920-11b28e7367e3?q=80&w=600&auto=format&fit=crop",
-      desc: "Layers of delicate pasta, rich slow-cooked meat sauce, creamy ricotta, and bubbling melted mozzarella cheese baked to aesthetic perfection."
+      name: itemName,
+      price: itemPrice,
+      numPrice: itemNumPrice,
+      img: promo.imageUrl || "https://images.unsplash.com/photo-1574894709920-11b28e7367e3?q=80&w=600&auto=format&fit=crop",
+      desc: promo.description || "Layers of delicate pasta, rich slow-cooked meat sauce, creamy ricotta, and bubbling melted mozzarella cheese baked to aesthetic perfection."
     });
-    alert("🎉 Classic Italian Lasagna added to your bag!");
+    alert(`🎉 ${itemName} added to your bag!`);
   };
 
   return (
@@ -39,16 +46,15 @@ const BrowniePromo = () => {
             <div>
               <div className="inline-flex items-center gap-2 bg-[var(--theme-accent)] text-white px-4 py-1.5 rounded-full text-xs font-extrabold tracking-[0.2em] uppercase mb-6 shadow-md">
                 <Sparkles size={14} />
-                DEBUTS 7/30 • NEW FLAVOR
+                {promo.subtitle || 'DEBUTS 7/30 • NEW FLAVOR'}
               </div>
 
-              <h2 className="font-serif text-4xl sm:text-5xl md:text-6xl font-bold leading-tight mb-6 tracking-tight">
-                Classic Italian <br />
-                <span className="text-amber-300 italic font-normal">Lasagna</span>
+              <h2 className="font-serif text-4xl sm:text-5xl md:text-6xl font-bold leading-tight mb-6 tracking-tight" dangerouslySetInnerHTML={{ __html: promo.title || `Classic Italian <br />
+                <span className="text-amber-300 italic font-normal">Lasagna</span>` }}>
               </h2>
 
               <p className="text-gray-200 text-base sm:text-lg md:text-xl font-normal leading-relaxed mb-8 max-w-xl">
-                Layers of delicate pasta, rich slow-cooked meat sauce, creamy ricotta, and bubbling melted mozzarella cheese baked to aesthetic perfection!
+                {promo.description || 'Layers of delicate pasta, rich slow-cooked meat sauce, creamy ricotta, and bubbling melted mozzarella cheese baked to aesthetic perfection!'}
               </p>
             </div>
 
@@ -67,7 +73,7 @@ const BrowniePromo = () => {
                   onClick={handleQuickAdd}
                   className="bg-[var(--theme-accent)] hover:opacity-90 text-white px-8 py-4 rounded-xl font-bold tracking-[0.15em] uppercase text-xs sm:text-sm shadow-xl transition-all flex items-center justify-center gap-2"
                 >
-                  <span>+ Quick Add ($18.95)</span>
+                  <span>{promo.buttonText || `+ Quick Add ($${promo.price || '18.95'})`}</span>
                 </button>
               </div>
 
@@ -86,8 +92,8 @@ const BrowniePromo = () => {
           {/* Right Column: Visual Showcase */}
           <div className="lg:col-span-5 relative min-h-[350px] sm:min-h-[450px] lg:min-h-full overflow-hidden bg-gray-900 group">
             <img
-              src="https://images.unsplash.com/photo-1574894709920-11b28e7367e3?q=80&w=600&auto=format&fit=crop"
-              alt="Classic Italian Lasagna"
+              src={promo.imageUrl || "https://images.unsplash.com/photo-1574894709920-11b28e7367e3?q=80&w=600&auto=format&fit=crop"}
+              alt={promo.title || "Classic Italian Lasagna"}
               className="w-full h-full object-cover object-center transform group-hover:scale-105 transition-transform duration-700"
             />
             
