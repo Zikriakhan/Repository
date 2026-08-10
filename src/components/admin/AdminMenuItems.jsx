@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAdminData } from '../../context/AdminDataContext';
+import { useAdminData, API_URL } from '../../context/AdminDataContext';
 
 
 
@@ -20,7 +20,7 @@ function ItemFormModal({ category, initial, onSave, onClose }) {
 
     setUploading(true);
     try {
-      const res = await fetch('http://localhost:5000/api/upload', {
+      const res = await fetch(`${API_URL}/upload`, {
         method: 'POST',
         body: formData,
       });

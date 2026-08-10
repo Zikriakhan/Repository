@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAdminData } from '../../context/AdminDataContext';
+import { useAdminData, API_URL } from '../../context/AdminDataContext';
 import { Save, Image as ImageIcon } from 'lucide-react';
 
 const PROMO_COMPONENTS = [
@@ -65,7 +65,7 @@ export default function AdminPromos() {
 
     setUploading(true);
     try {
-      const res = await fetch('http://localhost:5000/api/upload', {
+      const res = await fetch(`${API_URL}/upload`, {
         method: 'POST',
         body: formData,
       });
@@ -115,9 +115,9 @@ export default function AdminPromos() {
       {/* Edit Form */}
       <div style={{ background: '#fff', borderRadius: '16px', padding: '32px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
         <h2 style={{ margin: '0 0 24px', fontSize: '20px', fontWeight: 700, color: '#1a0a10' }}>Edit {PROMO_COMPONENTS.find(c => c.id === activeTab)?.label}</h2>
-        
+
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          
+
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <label style={{ fontSize: '13px', fontWeight: 600, color: '#555' }}>Title</label>

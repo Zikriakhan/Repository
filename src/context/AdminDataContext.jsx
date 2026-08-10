@@ -6,7 +6,7 @@ export function useAdminData() {
   return useContext(AdminDataContext);
 }
 
-const API_URL = 'http://localhost:5000/api'; // Changed for local backend testing
+export const API_URL = 'http://localhost:5000/api'; // Must be local for multer file uploads to work
 
 export function AdminDataProvider({ children }) {
   const [data, setData] = useState({
@@ -230,7 +230,7 @@ export function AdminDataProvider({ children }) {
         body: JSON.stringify(updates)
       });
       const updatedPromo = await res.json();
-      
+
       updateState(prev => {
         const exists = prev.promos.find(p => p.name === name);
         if (exists) {

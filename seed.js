@@ -56,7 +56,7 @@ const breakfastItems = [
 ];
 
 async function seed() {
-  const API_URL = 'https://repository-nine-navy.vercel.app/api';
+  const API_URL = 'http://localhost:5000/api';
   for (const item of breakfastItems) {
     try {
       const res = await fetch(`${API_URL}/menu`, {
