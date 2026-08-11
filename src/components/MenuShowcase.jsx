@@ -11,9 +11,18 @@ export default function MenuShowcase() {
 
   const handleAddToCart = (e, item) => {
     e.stopPropagation();
+    
+    // Redirect to detail page if product has variations
+    if (item.hasVariations) {
+      const itemSlug = item.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      window.history.pushState({ id: item.id || item._id, image: item.image, description: item.desc || item.description, price: item.price }, '', `/menu/all/${itemSlug}`);
+      window.dispatchEvent(new Event('popstate'));
+      return;
+    }
+
     addToCart({
       name: item.name,
-      price: item.price || "$14.95",
+      price: item.price || "AED14.95",
       numPrice: item.numPrice || 14.95,
       img: item.image,
       desc: item.description || item.desc
@@ -99,9 +108,9 @@ export default function MenuShowcase() {
 
         {/* Dynamic Sections based on availableCategories */}
         {availableCategories.length === 0 ? (
-           <div className="text-center py-20">
-             <p className="text-2xl font-serif text-gray-500">No menu items found.</p>
-           </div>
+          <div className="text-center py-20">
+            <p className="text-2xl font-serif text-gray-500">No menu items found.</p>
+          </div>
         ) : (
           availableCategories.map(cat => {
             const categoryItems = data.menuItems[cat]?.filter(i => i.active) || [];
@@ -122,7 +131,7 @@ export default function MenuShowcase() {
                     onClick={() => setActiveCategory(cat.toUpperCase())}
                     className="text-[10px] md:text-[11px] font-bold text-[#c69214] hover:text-[#9e2a4b] uppercase tracking-[0.2em] transition-colors mt-4 sm:mt-0 group flex items-center gap-2"
                   >
-                    View All {categoryItems.length} <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform"/>
+                    View All {categoryItems.length} <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                   </button>
                 </div>
 
@@ -132,7 +141,7 @@ export default function MenuShowcase() {
                       key={idx}
                       onClick={() => {
                         const itemSlug = item.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-                        window.history.pushState({ image: item.image, description: item.desc || item.description, price: item.price }, '', `/menu/${cat}/${itemSlug}`);
+                        window.history.pushState({ id: item.id || item._id, image: item.image, description: item.desc || item.description, price: item.price }, '', `/menu/${cat}/${itemSlug}`);
                         window.dispatchEvent(new Event('popstate'));
                       }}
                       className="group bg-white rounded-2xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] border border-gray-100 transition-all duration-500 cursor-pointer flex flex-col h-full transform hover:-translate-y-2"
@@ -140,17 +149,26 @@ export default function MenuShowcase() {
                       <div className="relative h-56 md:h-64 overflow-hidden bg-gray-50">
                         <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors z-10 duration-500"></div>
                         <img
-                          src={item.image}
+                          src={item.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&auto=format&fit=crop'}
                           alt={item.name}
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&auto=format&fit=crop';
+                          }}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
                         />
-                        <div className="absolute top-4 right-4 z-20">
+                        <div className="absolute top-4 right-4 z-20 text-right flex flex-col gap-1 items-end">
                           <span className="bg-white/95 backdrop-blur-md text-[#1a0a10] font-serif font-bold px-4 py-2 rounded-full shadow-lg text-sm border border-gray-100/50">
-                            {item.price}
+                            {item.hasVariations ? 'From ' : ''}AED{item.hasVariations && item.minVariationPrice ? item.minVariationPrice.toFixed(2) : (item.numPrice !== undefined ? item.numPrice.toFixed(2) : parseFloat(String(item.price).replace(/[^0-9.-]/g, '') || '0').toFixed(2))}
                           </span>
+                          {item.hasVariations && item.variationCount > 0 && (
+                            <span className="bg-[var(--theme-accent,#92141f)] text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-md uppercase tracking-wider">
+                              {item.variationCount} sizes available
+                            </span>
+                          )}
                         </div>
                       </div>
-                      
+
                       <div className="p-6 flex flex-col flex-grow justify-between bg-white relative z-20">
                         <div>
                           <h3 className="font-serif font-bold text-xl md:text-2xl text-[#1a0a10] mb-3 group-hover:text-[#9e2a4b] transition-colors line-clamp-2 leading-snug">
@@ -170,6 +188,8 @@ export default function MenuShowcase() {
                         >
                           {addedItem === item.name ? (
                             <>Added to Cart</>
+                          ) : item.hasVariations ? (
+                            <>Choose Size</>
                           ) : (
                             <><Plus size={14} /> Add to Order</>
                           )}

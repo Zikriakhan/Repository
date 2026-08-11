@@ -50,7 +50,7 @@ export default function AdminRewards() {
   const [modal, setModal] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
 
-  const catColors = { Birthday: ['#fdf2f8', '#9d174d'], Welcome: ['#ecfdf5', '#059669'], Members: ['#eff6ff', '#2563eb'], Earning: ['#fffbeb', '#d97706'], Redemption: ['#f5f3ff', '#7c3aed'], Seasonal: ['#fff7ed', '#ea580c'] };
+  const catColors = { Birthday: ['#fdf2f8', '#9d174d'], Welcome: ['#ecfdf5', '#059669'], Members: ['#eff6ff', '#2563eb'], Earning: ['#fffbeb', '#d97706'], Redemption: ['#f5f3ff', '#7c3$'], Seasonal: ['#fff7ed', '#ea580c'] };
 
   return (
     <div>

@@ -55,7 +55,7 @@ const Desserts = () => {
       const container = scrollContainerRef.current;
       const { scrollLeft, scrollWidth, clientWidth } = container;
       const cardWidth = container.querySelector('.slider-card')?.offsetWidth || 300;
-      
+
       // If we've reached the end, loop back to start
       if (Math.ceil(scrollLeft + clientWidth) >= scrollWidth - 10) {
         container.scrollTo({ left: 0, behavior: 'smooth' });
@@ -93,22 +93,22 @@ const Desserts = () => {
         </div>
 
         {/* Slider Container with Professional Navigation & Hover Animations */}
-        <div 
+        <div
           className="relative mb-14"
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
         >
           {items.length > 4 && (
             <>
-              <button 
-                onClick={scrollLeft} 
+              <button
+                onClick={scrollLeft}
                 className="absolute -left-4 md:-left-6 top-1/2 -translate-y-1/2 z-20 bg-white/95 backdrop-blur shadow-[0_4px_20px_rgba(0,0,0,0.1)] border border-gray-100 p-3 rounded-full hover:bg-white text-[#92141f] transition-all hover:scale-110 hidden md:flex items-center justify-center"
                 aria-label="Previous items"
               >
                 <ChevronLeft size={24} />
               </button>
-              <button 
-                onClick={scrollRight} 
+              <button
+                onClick={scrollRight}
                 className="absolute -right-4 md:-right-6 top-1/2 -translate-y-1/2 z-20 bg-white/95 backdrop-blur shadow-[0_4px_20px_rgba(0,0,0,0.1)] border border-gray-100 p-3 rounded-full hover:bg-white text-[#92141f] transition-all hover:scale-110 hidden md:flex items-center justify-center"
                 aria-label="Next items"
               >
@@ -118,12 +118,12 @@ const Desserts = () => {
           )}
 
           {/* Hide scrollbar with custom CSS class 'no-scrollbar' (assuming it exists or using inline webkit styles) */}
-          <div 
+          <div
             ref={scrollContainerRef}
             className="flex gap-8 overflow-x-auto snap-x snap-mandatory pb-8 pt-4 px-2"
-            style={{ 
-              scrollbarWidth: 'none', 
-              msOverflowStyle: 'none' 
+            style={{
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none'
             }}
           >
             {/* Inject a quick style to hide scrollbar for webkit if not in global css */}
@@ -137,8 +137,12 @@ const Desserts = () => {
                 {/* Image Container with Zoom Animation & Badges */}
                 <div className="relative overflow-hidden h-64 bg-gray-100">
                   <img
-                    src={item.image}
+                    src={item.image || 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=600&auto=format&fit=crop'}
                     alt={item.title}
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=600&auto=format&fit=crop';
+                    }}
                     className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ease-out"
                   />
 

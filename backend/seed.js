@@ -15,7 +15,7 @@ const menuData = {
       image: "https://images.unsplash.com/photo-1560750133-c5d4ef4de911?q=80&w=600&auto=format&fit=crop",
       active: true
     },
-    
+
     {
       id: 'b2',
       name: "AESTHETIC PENNE PASTA",

@@ -204,11 +204,11 @@ const Footer = () => {
                 </span>
                 <span className="text-sm leading-relaxed" style={{ color: '#b8ccbe' }}>
                   <strong>Hours:</strong> Open · Closes 12 am<br />
-                  <strong>Price per person:</strong> AED 1–50<br />
+                  <strong>Price per person:</strong> $ 1–50<br />
                   <span className="opacity-70 text-xs mt-1 block">Reported by 100 people</span>
                 </span>
               </li>
-              
+
               {/* Actions */}
               <li className="flex gap-2 flex-wrap mt-2 text-xs" style={{ color: '#d4b896' }}>
                 <button type="button" className="hover:text-white transition-colors">Suggest an edit</button>

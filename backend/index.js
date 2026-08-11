@@ -17,6 +17,7 @@ app.use('/api/orders', require('./routes/orderRoutes'));
 app.use('/api/themes', require('./routes/themeRoutes'));
 app.use('/api/promos', require('./routes/promoRoutes'));
 app.use('/api/upload', require('./routes/uploadRoutes'));
+app.use('/api/variations', require('./routes/variationRoutes'));
 
 // Serve static files from the uploads directory
 const path = require('path');

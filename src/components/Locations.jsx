@@ -38,10 +38,10 @@ export default function Locations() {
   const handleSearch = (e) => {
     if (e) e.preventDefault();
     if (!searchQuery.trim() && activeTab !== 'Near You') return;
-    
+
     setIsSearching(true);
     setHasSearched(true);
-    
+
     // Simulate API call
     setTimeout(() => {
       // Basic mock filter
@@ -75,21 +75,21 @@ export default function Locations() {
 
         {/* Left Actions */}
         <div className="flex w-full md:w-auto h-12 md:h-14 border border-gray-200 rounded-sm overflow-hidden mb-4 md:mb-0">
-          <button 
+          <button
             onClick={handleNearYou}
             className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-8 font-bold text-xs uppercase tracking-wider transition-colors ${activeTab === 'Near You' ? 'bg-[#3a1e26] text-white hover:bg-[#522a36]' : 'bg-white text-[#3a1e26] hover:bg-gray-50'}`}
           >
             <MapPin size={16} />
             Near You
           </button>
-          <button 
+          <button
             onClick={() => setActiveTab('Pickup')}
             className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-8 font-bold text-xs uppercase tracking-wider border-l border-gray-200 transition-colors ${activeTab === 'Pickup' ? 'bg-[#3a1e26] text-white hover:bg-[#522a36]' : 'bg-white text-[#3a1e26] hover:bg-gray-50'}`}
           >
             <ShoppingBag size={16} />
             Pickup
           </button>
-          <button 
+          <button
             onClick={() => setActiveTab('Delivery')}
             className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-8 font-bold text-xs uppercase tracking-wider border-l border-gray-200 transition-colors ${activeTab === 'Delivery' ? 'bg-[#3a1e26] text-white hover:bg-[#522a36]' : 'bg-white text-[#3a1e26] hover:bg-gray-50'}`}
           >
@@ -112,7 +112,7 @@ export default function Locations() {
               className="w-full h-full pl-12 pr-4 bg-transparent text-[#3a1e26] placeholder-gray-400 font-medium focus:outline-none focus:bg-white transition-colors uppercase"
             />
           </div>
-          <button 
+          <button
             type="submit"
             className="bg-[#92141f] hover:bg-[#a61723] text-white px-10 font-bold text-xs uppercase tracking-[0.15em] transition-colors flex items-center justify-center gap-2"
           >
@@ -200,16 +200,16 @@ export default function Locations() {
                       <h4 className="font-bold text-[#3a1e26] text-lg group-hover:text-[#92141f] transition-colors">{location.name}</h4>
                       <span className="text-xs font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded-full">{location.distance}</span>
                     </div>
-                    
+
                     <div className="text-gray-600 text-sm mb-4 space-y-1">
                       <p>{location.address}</p>
                       <p>{location.cityState}</p>
                     </div>
-                    
+
                     <div className="flex items-center gap-4 text-xs font-bold text-gray-500 mb-5">
                       <div className="flex items-center gap-1.5"><Clock size={14} className="text-[#92141f]" /> {location.status}</div>
                     </div>
-                    
+
                     <div className="flex gap-3">
                       <button className="flex-1 border border-[#3a1e26] text-[#3a1e26] hover:bg-[#3a1e26] hover:text-white py-2 font-bold text-xs uppercase tracking-wider transition-colors">
                         Details

@@ -57,7 +57,7 @@ export default function AdminCareers() {
   const [activeTab, setActiveTab] = useState('listings'); // 'listings' | 'applications'
 
   const typeBadge = (type) => {
-    const colors = { 'Full-time': ['#ecfdf5', '#059669'], 'Part-time': ['#eff6ff', '#2563eb'], 'Seasonal': ['#fffbeb', '#d97706'], 'Contract': ['#f5f3ff', '#7c3aed'] };
+    const colors = { 'Full-time': ['#ecfdf5', '#059669'], 'Part-time': ['#eff6ff', '#2563eb'], 'Seasonal': ['#fffbeb', '#d97706'], 'Contract': ['#f5f3ff', '#7c3$'] };
     const [bg, color] = colors[type] || ['#f3f4f6', '#555'];
     return <span style={{ padding: '4px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 700, background: bg, color }}>{type}</span>;
   };
@@ -79,13 +79,13 @@ export default function AdminCareers() {
       </div>
 
       <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
-        <button 
+        <button
           onClick={() => setActiveTab('listings')}
           style={{ padding: '8px 16px', background: activeTab === 'listings' ? '#f3f4f6' : 'transparent', border: 'none', borderRadius: '8px', fontWeight: 600, color: activeTab === 'listings' ? '#1a0a10' : '#666', cursor: 'pointer' }}
         >
           Job Listings
         </button>
-        <button 
+        <button
           onClick={() => setActiveTab('applications')}
           style={{ padding: '8px 16px', background: activeTab === 'applications' ? '#f3f4f6' : 'transparent', border: 'none', borderRadius: '8px', fontWeight: 600, color: activeTab === 'applications' ? '#1a0a10' : '#666', cursor: 'pointer' }}
         >
@@ -137,11 +137,11 @@ export default function AdminCareers() {
       )}
 
       {activeTab === 'applications' && (
-        <div style={{ background: '#fff', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 2px 16px rgba(0,0,0,0.06)', border: '1px solid #f0f0f0' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div style={{ background: '#fff', borderRadius: '16px', boxShadow: '0 2px 16px rgba(0,0,0,0.06)', border: '1px solid #f0f0f0', overflowX: 'auto' }}>
+          <table style={{ width: '100%', minWidth: '900px', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ background: '#fafafa', borderBottom: '1px solid #f0f0f0' }}>
-                {['Applicant', 'Job Title', 'Contact Info', 'CNIC', 'Attachments'].map(h => (
+                {['Applicant Info', 'Job Details', 'Status', 'Attachments', 'Actions'].map(h => (
                   <th key={h} style={{ padding: '14px 16px', textAlign: 'left', fontSize: '11px', fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.8px' }}>{h}</th>
                 ))}
               </tr>
@@ -149,34 +149,59 @@ export default function AdminCareers() {
             <tbody>
               {applications.length === 0 ? (
                 <tr><td colSpan={5} style={{ padding: '48px', textAlign: 'center', color: '#bbb' }}>No applications received yet.</td></tr>
-              ) : applications.map(app => (
-                <tr key={app.id} style={{ borderBottom: '1px solid #f9f9f9', transition: 'background 0.15s' }}
-                  onMouseEnter={e => e.currentTarget.style.background = '#fafbff'}
-                  onMouseLeave={e => e.currentTarget.style.background = '#fff'}
-                >
-                  <td style={{ padding: '14px 16px' }}>
-                    <div style={{ fontWeight: 600, fontSize: '14px', color: '#1a0a10' }}>{app.name}</div>
-                    <div style={{ fontSize: '12px', color: '#999', marginTop: '2px', fontStyle: 'italic' }}>"{app.questionnaire?.slice(0, 40)}..."</div>
-                  </td>
-                  <td style={{ padding: '14px 16px', fontSize: '13px', color: '#555', fontWeight: 600 }}>{app.jobTitle}</td>
-                  <td style={{ padding: '14px 16px', fontSize: '13px', color: '#555' }}>
-                    <div>{app.email}</div>
-                    <div style={{ color: '#888', fontSize: '12px' }}>{app.phone}</div>
-                  </td>
-                  <td style={{ padding: '14px 16px', fontSize: '13px', color: '#555' }}>{app.cnic}</td>
-                  <td style={{ padding: '14px 16px', fontSize: '12px' }}>
-                    <div style={{ display: 'flex', gap: '8px', flexDirection: 'column' }}>
-                      <span style={{ background: '#eff6ff', color: '#2563eb', padding: '4px 8px', borderRadius: '4px', display: 'inline-block' }}>📄 {app.cvName}</span>
-                      <div style={{ background: '#f3f4f6', color: '#4b5563', padding: '4px 8px', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <span style={{ flex: 1 }}>🖼️ {app.imageName}</span>
-                        {app.imageUrl && (
-                          <img src={app.imageUrl} alt="Applicant" style={{ width: '44px', height: '44px', borderRadius: '6px', objectFit: 'cover', border: '1px solid #ddd' }} />
+              ) : applications.map(app => {
+                const job = data.careers.find(c => c.title === app.jobTitle);
+                return (
+                  <tr key={app.id} style={{ borderBottom: '1px solid #f9f9f9', transition: 'background 0.15s' }}
+                    onMouseEnter={e => e.currentTarget.style.background = '#fafbff'}
+                    onMouseLeave={e => e.currentTarget.style.background = '#fff'}
+                  >
+                    <td style={{ padding: '14px 16px' }}>
+                      <div style={{ fontWeight: 600, fontSize: '14px', color: '#1a0a10' }}>{app.name}</div>
+                      <div style={{ fontSize: '12px', color: '#555', marginTop: '2px' }}>{app.email}</div>
+                      <div style={{ fontSize: '12px', color: '#888' }}>{app.phone}</div>
+                      <div style={{ fontSize: '11px', color: '#aaa', marginTop: '4px' }}>CNIC: {app.cnic}</div>
+                    </td>
+                    <td style={{ padding: '14px 16px' }}>
+                      <div style={{ fontSize: '13px', fontWeight: 600, color: '#1a0a10' }}>{app.jobTitle}</div>
+                      {job ? (
+                        <div style={{ fontSize: '12px', color: '#666', marginTop: '4px', display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
+                          <span>{job.department} • {job.location}</span>
+                          {typeBadge(job.type)}
+                        </div>
+                      ) : (
+                        <div style={{ fontSize: '12px', color: '#aaa', fontStyle: 'italic', marginTop: '4px' }}>Details unavailable</div>
+                      )}
+                    </td>
+                    <td style={{ padding: '14px 16px' }}>
+                      <span style={{ padding: '4px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 700, background: '#fffbeb', color: '#d97706' }}>Pending</span>
+                    </td>
+                    <td style={{ padding: '14px 16px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <a href={app.cvUrl || '#'} target="_blank" rel="noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#eff6ff', color: '#2563eb', padding: '6px 12px', borderRadius: '6px', textDecoration: 'none', fontSize: '12px', fontWeight: 600, border: '1px solid #bfdbfe', width: 'fit-content' }}>
+                          📄 {app.cvName || 'Resume.pdf'}
+                        </a>
+                        {(app.imageUrl || app.imageName) && (
+                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#f3f4f6', color: '#4b5563', padding: '4px', borderRadius: '6px', border: '1px solid #e5e7eb', width: 'fit-content' }}>
+                            {app.imageUrl ? (
+                              <img src={app.imageUrl} alt="Applicant" style={{ width: '40px', height: '40px', borderRadius: '4px', objectFit: 'cover' }} />
+                            ) : (
+                              <div style={{ width: '40px', height: '40px', borderRadius: '4px', background: '#ddd', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px' }}>No Img</div>
+                            )}
+                            <span style={{ fontSize: '11px', paddingRight: '8px', maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{app.imageName || 'Image'}</span>
+                          </div>
                         )}
                       </div>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td style={{ padding: '14px 16px' }}>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button style={{ padding: '6px 12px', background: '#f0f0f0', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', color: '#1a0a10', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = '#e5e7eb'} onMouseLeave={e => e.currentTarget.style.background = '#f0f0f0'}>View</button>
+                        <button style={{ padding: '6px 12px', background: '#ecfdf5', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', color: '#059669', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = '#d1fae5'} onMouseLeave={e => e.currentTarget.style.background = '#ecfdf5'}>Accept</button>
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </div>

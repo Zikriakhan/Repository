@@ -17,12 +17,27 @@ export default function Order() {
   const handlePlaceOrder = (e) => {
     e.preventDefault();
 
+    const form = e.target;
+    const nameInput = form.querySelector('input[placeholder="Full Name"]') || form.elements['guestName'];
+    const customerName = nameInput && nameInput.value.trim() ? nameInput.value.trim() : 'Guest';
+
     // Add order to admin dashboard
     addOrder({
-      items: cartItems,
+      items: cartItems.map(item => ({
+        name: item.name,
+        quantity: item.quantity,
+        numPrice: item.numPrice || parseFloat(String(item.price).replace(/[^0-9.-]/g, '') || '0'),
+        variationName: item.variationName,
+        lineTotal: (item.numPrice || parseFloat(String(item.price).replace(/[^0-9.-]/g, '') || '0')) * item.quantity,
+        img: item.img,
+        image: item.img || item.image
+      })),
       total: total,
+      subtotal: subtotal,
+      tax: tax,
+      deliveryFee: deliveryFee,
       method: orderMethod,
-      customer: e.target.elements[1]?.value || 'Guest'
+      customer: customerName
     });
 
     setOrderPlaced(true);
@@ -88,22 +103,27 @@ export default function Order() {
 
                       <div className="flex-1">
                         <div className="flex justify-between items-start mb-2">
-                          <h4 className="font-serif text-xl font-bold text-[#3a1e26]">{item.name}</h4>
-                          <span className="font-bold text-[#92141f] ml-4">${(item.numPrice * item.quantity).toFixed(2)}</span>
+                          <div>
+                            <h4 className="font-serif text-xl font-bold text-[#3a1e26]">{item.name}</h4>
+                            {item.variationName && (
+                              <p className="text-[#92141f] font-bold text-sm tracking-wider uppercase">{item.variationName}</p>
+                            )}
+                          </div>
+                          <span className="font-bold text-[#92141f] ml-4">AED{(item.numPrice * item.quantity).toFixed(2)}</span>
                         </div>
                         <p className="text-gray-600 text-sm mb-4 line-clamp-1">{item.desc}</p>
 
                         <div className="flex justify-between items-center">
                           <div className="flex items-center border border-gray-200 rounded-sm">
                             <button
-                              onClick={() => updateQuantity(item.name, item.quantity - 1)}
+                              onClick={() => updateQuantity(item.name, item.variationName, item.quantity - 1)}
                               className="px-3 py-1 text-gray-500 hover:text-[#92141f] transition-colors"
                             >
                               <Minus size={16} />
                             </button>
                             <span className="px-3 py-1 font-bold text-sm min-w-[2.5rem] text-center text-[#3a1e26]">{item.quantity}</span>
                             <button
-                              onClick={() => updateQuantity(item.name, item.quantity + 1)}
+                              onClick={() => updateQuantity(item.name, item.variationName, item.quantity + 1)}
                               className="px-3 py-1 text-gray-500 hover:text-[#3a1e26] transition-colors"
                             >
                               <Plus size={16} />
@@ -111,7 +131,7 @@ export default function Order() {
                           </div>
 
                           <button
-                            onClick={() => removeFromCart(item.name)}
+                            onClick={() => removeFromCart(item.name, item.variationName)}
                             className="text-gray-400 hover:text-[#92141f] transition-colors flex items-center text-xs uppercase tracking-widest font-bold"
                           >
                             <Trash2 size={16} className="mr-2" />
@@ -164,7 +184,7 @@ export default function Order() {
                 <div className="space-y-4 mb-8">
                   <div>
                     <label className="block text-xs font-bold text-gray-500 uppercase tracking-[0.15em] mb-2">Guest Name</label>
-                    <input type="text" required className="w-full bg-[#F9FAFB] border border-gray-200 text-[#1F2937] text-sm rounded-sm p-3 focus:outline-none focus:border-[#3a1e26] focus:ring-1 focus:ring-[#3a1e26] transition-colors" placeholder="Full Name" />
+                    <input type="text" name="guestName" required className="w-full bg-[#F9FAFB] border border-gray-200 text-[#1F2937] text-sm rounded-sm p-3 focus:outline-none focus:border-[#3a1e26] focus:ring-[#3a1e26] transition-colors" placeholder="Full Name" />
                   </div>
                   {orderMethod === 'delivery' && (
                     <div>
@@ -185,21 +205,21 @@ export default function Order() {
                 <div className="border-t border-gray-100 pt-6 mb-8 space-y-3">
                   <div className="flex justify-between text-sm text-gray-600">
                     <span>Subtotal</span>
-                    <span>${subtotal.toFixed(2)}</span>
+                    <span>AED{subtotal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm text-gray-600">
                     <span>Taxes &amp; Fees</span>
-                    <span>${tax.toFixed(2)}</span>
+                    <span>AED{tax.toFixed(2)}</span>
                   </div>
                   {orderMethod === 'delivery' && (
                     <div className="flex justify-between text-sm text-gray-600">
                       <span>Delivery Fee</span>
-                      <span>${deliveryFee.toFixed(2)}</span>
+                      <span>AED{deliveryFee.toFixed(2)}</span>
                     </div>
                   )}
                   <div className="flex justify-between font-serif text-2xl font-bold text-[#3a1e26] pt-4 border-t border-gray-100">
                     <span>Total</span>
-                    <span>${total.toFixed(2)}</span>
+                    <span>AED{total.toFixed(2)}</span>
                   </div>
                 </div>
 

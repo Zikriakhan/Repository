@@ -68,11 +68,11 @@ export default function AdminTheme() {
     setAccentColor(defAcc);
     setLightColor(defLgt);
     applyColors(defPrim, defAcc, defLgt);
-    
+
     const themeData = { primary: defPrim, accent: defAcc, light: defLgt };
     await updateTheme(themeData);
     localStorage.setItem('ccf_theme_colors', JSON.stringify(themeData));
-    
+
     setSavedMessage('🔄 Restored default British Racing Green palette!');
     setTimeout(() => setSavedMessage(''), 4000);
   };

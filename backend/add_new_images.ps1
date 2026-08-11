@@ -16,6 +16,6 @@ $items = @(
 
 foreach ($item in $items) {
     $json = $item | ConvertTo-Json
-    Invoke-RestMethod -Uri "http://localhost:5000/api/menu" -Method Post -Body $json -ContentType "application/json"
+    Invoke-RestMethod -Uri "https://repository-nine-navy.vercel.app/api/menu" -Method Post -Body $json -ContentType "application/json"
     Write-Host "Added $($item.name)"
 }

@@ -140,8 +140,12 @@ const BitesAndBowls = () => {
                 {/* Image Container with Zoom Animation & Badges */}
                 <div className="relative overflow-hidden h-64 bg-gray-100">
                   <img
-                    src={item.image}
+                    src={item.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&auto=format&fit=crop'}
                     alt={item.title}
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&auto=format&fit=crop';
+                    }}
                     className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ease-out"
                   />
 

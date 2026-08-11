@@ -17,7 +17,10 @@ export default function AdminOrders() {
   // Sort orders by date descending (newest first)
   allOrders.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-  const totalRevenue = (data.orders || []).reduce((sum, o) => sum + parseFloat(o.total || 0), 0);
+  const totalRevenue = (data.orders || []).reduce((sum, o) => {
+    const val = parseFloat(o.total);
+    return sum + (isNaN(val) ? 0 : val);
+  }, 0);
   const activeOrders = (data.orders || []).filter(o => ['Received', 'Preparing', 'Ready'].includes(o.status)).length;
 
   const statusColor = (status) => {
@@ -46,7 +49,7 @@ export default function AdminOrders() {
         <div style={{ display: 'flex', gap: '12px' }}>
           <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '12px 20px', boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}>
             <div style={{ fontSize: '11px', fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Revenue</div>
-            <div style={{ fontSize: '20px', fontWeight: 800, color: '#1a0a10' }}>${totalRevenue.toFixed(2)}</div>
+            <div style={{ fontSize: '20px', fontWeight: 800, color: '#1a0a10' }}>AED{totalRevenue.toFixed(2)}</div>
           </div>
           <div style={{ background: 'linear-gradient(135deg, #fffbeb, #fef3c7)', border: '1px solid #fde68a', borderRadius: '12px', padding: '12px 20px', boxShadow: '0 2px 8px rgba(217,119,6,0.1)' }}>
             <div style={{ fontSize: '11px', fontWeight: 700, color: '#d97706', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Active Orders</div>
@@ -90,7 +93,7 @@ export default function AdminOrders() {
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
             {cartItems.map(item => (
               <div key={item.name} style={{ background: '#fff', borderRadius: '10px', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', border: '1px solid #f0f0f0' }}>
-                <img src={item.image} alt={item.name} style={{ width: '40px', height: '30px', objectFit: 'cover', borderRadius: '6px' }} />
+                <img src={item.image || item.img || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&auto=format&fit=crop'} alt={item.name} onError={e => { e.target.src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&auto=format&fit=crop'; }} style={{ width: '40px', height: '30px', objectFit: 'cover', borderRadius: '6px' }} />
                 <div>
                   <div style={{ fontSize: '13px', fontWeight: 600, color: '#1a0a10' }}>{item.name}</div>
                   <div style={{ fontSize: '12px', color: '#888' }}>Qty: {item.quantity} · {item.price}</div>
@@ -99,14 +102,14 @@ export default function AdminOrders() {
             ))}
           </div>
           <div style={{ marginTop: '16px', textAlign: 'right', fontWeight: 700, fontSize: '16px', color: '#92141f' }}>
-            Cart Total: ${getCartTotal().toFixed(2)}
+            Cart Total: AED{getCartTotal().toFixed(2)}
           </div>
         </div>
       )}
 
       {/* Orders Table */}
-      <div style={{ background: '#fff', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 2px 16px rgba(0,0,0,0.06)', border: '1px solid #f0f0f0' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+      <div style={{ background: '#fff', borderRadius: '16px', boxShadow: '0 2px 16px rgba(0,0,0,0.06)', border: '1px solid #f0f0f0', overflowX: 'auto' }}>
+        <table style={{ width: '100%', minWidth: '800px', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ background: '#fafafa', borderBottom: '1px solid #f0f0f0' }}>
               {['Order ID', 'Customer', 'Items', 'Total', 'Date', 'Status Management'].map(h => (
@@ -124,14 +127,14 @@ export default function AdminOrders() {
               </tr>
             ) : allOrders.map(order => {
               const [bg, color, border] = statusColor(order.status);
-              
+
               // Calculate time ago
               const orderDate = new Date(order.date);
               const diffMs = new Date() - orderDate;
               const diffMins = Math.floor(diffMs / 60000);
               let timeAgo = '';
               if (diffMins < 60) timeAgo = `${diffMins}m ago`;
-              else if (diffMins < 1440) timeAgo = `${Math.floor(diffMins/60)}h ago`;
+              else if (diffMins < 1440) timeAgo = `${Math.floor(diffMins / 60)}h ago`;
               else timeAgo = orderDate.toLocaleDateString();
 
               return (
@@ -146,24 +149,24 @@ export default function AdminOrders() {
                     <div style={{ fontSize: '14px', fontWeight: 600, color: '#1a0a10' }}>{order.customer || 'Guest User'}</div>
                   </td>
                   <td style={{ padding: '16px' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                      {(order.items || []).slice(0, 2).map((item, idx) => (
-                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <img src={item.image} alt={item.name} style={{ width: '24px', height: '24px', borderRadius: '4px', objectFit: 'cover' }} />
-                          <span style={{ fontSize: '12px', color: '#333' }}><b style={{ color: '#888' }}>{item.quantity}x</b> {item.name}</span>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {(order.items || []).map((item, idx) => (
+                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#f8f8fb', padding: '6px', borderRadius: '8px' }}>
+                          <img src={item.image || item.img || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&auto=format&fit=crop'} alt={item.name} onError={e => { e.target.src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&auto=format&fit=crop'; }} style={{ width: '48px', height: '48px', borderRadius: '6px', objectFit: 'cover', border: '1px solid #e5e7eb', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }} />
+                          <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            <span style={{ fontSize: '13px', fontWeight: 600, color: '#1a0a10' }}>{item.name}</span>
+                            <span style={{ fontSize: '12px', color: '#666' }}>Qty: <b style={{ color: '#1a0a10' }}>{item.quantity}</b></span>
+                          </div>
                         </div>
                       ))}
-                      {(order.items || []).length > 2 && (
-                        <div style={{ fontSize: '11px', color: '#92141f', fontWeight: 600 }}>+ {(order.items || []).length - 2} more items</div>
-                      )}
                     </div>
                   </td>
                   <td style={{ padding: '16px', fontWeight: 700, color: '#92141f', fontSize: '15px' }}>
-                    ${parseFloat(order.total || 0).toFixed(2)}
+                    AED{parseFloat(order.total || 0).toFixed(2)}
                   </td>
                   <td style={{ padding: '16px', fontSize: '13px', color: '#666' }}>
                     <div style={{ fontWeight: 500 }}>{timeAgo}</div>
-                    <div style={{ fontSize: '11px', color: '#aaa', marginTop: '2px' }}>{orderDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                    <div style={{ fontSize: '11px', color: '#aaa', marginTop: '2px' }}>{orderDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                   </td>
                   <td style={{ padding: '16px' }}>
                     {/* Status Dropdown */}

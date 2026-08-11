@@ -1,8 +1,13 @@
 const mongoose = require('mongoose');
 
 const orderItemSchema = new mongoose.Schema({
+  productId: { type: mongoose.Schema.Types.ObjectId, ref: 'MenuItem' },
+  variationId: { type: mongoose.Schema.Types.ObjectId, ref: 'ProductVariation' },
   name: { type: String, required: true },
+  variationName: { type: String },
   quantity: { type: Number, required: true },
+  unitPrice: { type: Number },
+  lineTotal: { type: Number },
   image: { type: String }
 }, { _id: false });
 

@@ -136,7 +136,7 @@ export default function GiftCards() {
             Bulk Purchase Gift Cards<br />for U.S. &amp; Puerto Rico
           </h3>
           <p className="text-white/80 text-xs md:text-sm mb-8 leading-relaxed max-w-md font-medium">
-            Order gift cards in bulk for your business or clients. Minimum purchase of $1000 required.
+            Order gift cards in bulk for your business or clients. Minimum purchase of AED1000 required.
           </p>
           <button
             onClick={() => navigateTo('/order')}

@@ -17,7 +17,7 @@ const PizzaPromo = () => {
   const handleQuickAdd = (e) => {
     e.stopPropagation();
     const itemName = promo.title || "Ultimate Double Cheese Pizza";
-    const itemPrice = promo.price ? `$${parseFloat(promo.price).toFixed(2)}` : "$15.95";
+    const itemPrice = promo.price ? `AED${parseFloat(promo.price).toFixed(2)}` : "AED15.95";
     const itemNumPrice = promo.price ? parseFloat(promo.price) : 15.95;
 
     addToCart({
@@ -48,7 +48,8 @@ const PizzaPromo = () => {
                 </>}
               </div>
 
-              <h2 className="font-serif text-[var(--theme-primary)] text-4xl sm:text-5xl md:text-6xl font-bold leading-tight mb-6" dangerouslySetInnerHTML={{ __html: promo.title || `Ultimate Double <br />
+              <h2 className="font-serif text-[var(--theme-primary)] text-4xl sm:text-5xl md:text-6xl font-bold leading-tight mb-6" dangerouslySetInnerHTML={{
+                __html: promo.title || `Ultimate Double <br />
                 <span className="text-[var(--theme-accent)] italic font-normal">Cheese Pizza</span>` }}>
               </h2>
 
@@ -80,7 +81,7 @@ const PizzaPromo = () => {
                 className="flex-1 bg-[var(--theme-accent)] hover:opacity-90 text-white px-8 py-4 rounded-xl font-bold tracking-[0.15em] uppercase text-xs sm:text-sm shadow-lg hover:shadow-xl transition-all transform active:scale-95 flex items-center justify-center gap-3"
               >
                 <Flame size={18} />
-                <span>{promo.buttonText || `Order Now ($${promo.price || '15.95'})`}</span>
+                <span>{promo.buttonText || `Order Now (AED${promo.price || '15.95'})`}</span>
               </button>
 
               <button
@@ -112,7 +113,7 @@ const PizzaPromo = () => {
 
             {/* Price floating pill */}
             <div className="absolute bottom-6 right-6 z-20 bg-[var(--theme-accent)] text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-2 font-serif font-bold text-sm">
-              <span>${promo.price || '15.95'}</span>
+              <span>AED{promo.price || '15.95'}</span>
             </div>
           </div>
 

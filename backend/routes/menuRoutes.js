@@ -5,7 +5,28 @@ const MenuItem = require('../models/MenuItem');
 // GET all menu items
 router.get('/', async (req, res) => {
   try {
-    const items = await MenuItem.find();
+    const items = await MenuItem.aggregate([
+      {
+        $lookup: {
+          from: 'productvariations', // collection name in mongodb is typically lowercase plural
+          localField: '_id',
+          foreignField: 'menuItem',
+          as: 'variations'
+        }
+      },
+      {
+        $addFields: {
+          id: '$_id',
+          variationCount: { $size: '$variations' },
+          minVariationPrice: { $min: '$variations.numPrice' }
+        }
+      },
+      {
+        $project: {
+          variations: 0 // exclude the array of variations to save bandwidth
+        }
+      }
+    ]);
     res.json(items);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -39,6 +60,11 @@ router.delete('/:id', async (req, res) => {
   try {
     const item = await MenuItem.findByIdAndDelete(req.params.id);
     if (!item) return res.status(404).json({ message: 'Menu item not found' });
+    
+    // Also delete any associated variations
+    const ProductVariation = require('../models/ProductVariation');
+    await ProductVariation.deleteMany({ menuItem: req.params.id });
+    
     res.json({ message: 'Menu item deleted' });
   } catch (err) {
     res.status(500).json({ message: err.message });

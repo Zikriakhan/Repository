@@ -845,7 +845,7 @@ function getCategory(item) {
 }
 
 async function seed() {
-  const API_URL = 'http://localhost:5000/api';
+  const API_URL = 'https://repository-nine-navy.vercel.app/api';
   for (const item of items) {
     try {
       const category = getCategory(item);

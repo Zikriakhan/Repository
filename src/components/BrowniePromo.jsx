@@ -17,9 +17,9 @@ const BrowniePromo = () => {
   const handleQuickAdd = (e) => {
     e.stopPropagation();
     const itemName = promo.title || "Classic Italian Lasagna";
-    const itemPrice = promo.price ? `$${parseFloat(promo.price).toFixed(2)}` : "$18.95";
+    const itemPrice = promo.price ? `AED${parseFloat(promo.price).toFixed(2)}` : "AED18.95";
     const itemNumPrice = promo.price ? parseFloat(promo.price) : 18.95;
-    
+
     addToCart({
       name: itemName,
       price: itemPrice,
@@ -32,16 +32,16 @@ const BrowniePromo = () => {
 
   return (
     <section className="w-full py-16 md:py-24 bg-white relative overflow-hidden">
-      
+
       {/* Subtle Background Pattern */}
       <div className="absolute inset-0 opacity-3 bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none"></div>
 
       <div className="max-w-[1440px] mx-auto px-6 md:px-12">
         <div className="bg-[var(--theme-primary)] rounded-3xl overflow-hidden shadow-2xl border border-gray-100 grid grid-cols-1 lg:grid-cols-12 items-stretch">
-          
+
           {/* Left Column: Rich Editorial Content */}
           <div className="lg:col-span-7 p-8 sm:p-12 md:p-16 flex flex-col justify-between text-white relative z-10">
-            
+
             {/* Top Tag & Debut Date */}
             <div>
               <div className="inline-flex items-center gap-2 bg-[var(--theme-accent)] text-white px-4 py-1.5 rounded-full text-xs font-extrabold tracking-[0.2em] uppercase mb-6 shadow-md">
@@ -49,7 +49,8 @@ const BrowniePromo = () => {
                 {promo.subtitle || 'DEBUTS 7/30 • NEW FLAVOR'}
               </div>
 
-              <h2 className="font-serif text-4xl sm:text-5xl md:text-6xl font-bold leading-tight mb-6 tracking-tight" dangerouslySetInnerHTML={{ __html: promo.title || `Classic Italian <br />
+              <h2 className="font-serif text-4xl sm:text-5xl md:text-6xl font-bold leading-tight mb-6 tracking-tight" dangerouslySetInnerHTML={{
+                __html: promo.title || `Classic Italian <br />
                 <span className="text-amber-300 italic font-normal">Lasagna</span>` }}>
               </h2>
 
@@ -96,7 +97,7 @@ const BrowniePromo = () => {
               alt={promo.title || "Classic Italian Lasagna"}
               className="w-full h-full object-cover object-center transform group-hover:scale-105 transition-transform duration-700"
             />
-            
+
             {/* Gradient Overlay for Depth */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent lg:hidden"></div>
             <div className="absolute inset-0 bg-gradient-to-r from-[var(--theme-primary)]/80 via-transparent to-transparent hidden lg:block"></div>

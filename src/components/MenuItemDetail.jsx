@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ShoppingBag, Check, Plus, Minus, Info, Heart, Share2, ShieldCheck, Sparkles, ArrowRight } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { useAdminData } from '../context/AdminDataContext';
 
 // Database of menu items with detailed prices, calories, ingredients, and allergens
 const ITEM_DATABASE = {
   'pickle-fries': {
     name: 'Pickle Fries',
-    price: '$11.95',
+    price: 'AED11.95',
     numPrice: 11.95,
     calories: '580 Cal.',
     description: 'Hand Breaded and Fried Crisp. Served with Spicy Ranch dipping sauce.',
@@ -18,7 +19,7 @@ const ITEM_DATABASE = {
   },
   'asian-chicken-nachos': {
     name: 'Asian Chicken Nachos',
-    price: '$15.95',
+    price: 'AED15.95',
     numPrice: 15.95,
     calories: '1120 Cal.',
     description: 'Wonton Chips, Melted Cheese, Thai Peanut Sauce, Green Onion, Sesame and Wasabi Cream.',
@@ -30,7 +31,7 @@ const ITEM_DATABASE = {
   },
   'spicy-jambalaya-arancini': {
     name: 'Spicy Jambalaya Arancini',
-    price: '$13.95',
+    price: 'AED13.95',
     numPrice: 13.95,
     calories: '740 Cal.',
     description: 'Spicy Creole Rice Fried Crisp with Andouille Sausage, Peppers and Onions.',
@@ -42,7 +43,7 @@ const ITEM_DATABASE = {
   },
   'classic-italian-lasagna': {
     name: 'Classic Italian Lasagna',
-    price: '$16.95',
+    price: 'AED16.95',
     numPrice: 16.95,
     calories: '850 Cal.',
     description: 'Layers of slow-simmered meat sauce, creamy ricotta, and melted mozzarella baked to golden perfection.',
@@ -54,7 +55,7 @@ const ITEM_DATABASE = {
   },
   'aesthetic-penne-pasta': {
     name: 'Aesthetic Penne Pasta',
-    price: '$14.50',
+    price: 'AED14.50',
     numPrice: 14.50,
     calories: '720 Cal.',
     description: 'Penne tossed in a rich tomato sauce, finished with fresh basil and shaved parmesan.',
@@ -66,7 +67,7 @@ const ITEM_DATABASE = {
   },
   'ultimate-double-cheese-pizza': {
     name: 'Ultimate Double Cheese Pizza',
-    price: '$15.95',
+    price: 'AED15.95',
     numPrice: 15.95,
     calories: '940 Cal.',
     description: 'A wood-fired crust loaded with a blend of mozzarella, provolone, and cheddar, pulled fresh for that signature cheese-stretch in every slice.',
@@ -78,7 +79,7 @@ const ITEM_DATABASE = {
   },
   'bbq-pork-belly-buns': {
     name: 'BBQ Pork Belly Buns',
-    price: '$14.50',
+    price: 'AED14.50',
     numPrice: 14.50,
     calories: '890 Cal.',
     description: 'Tender Pork Served on Warm, Soft Rolls with Cole Slaw, Crispy Onions and Pickles.',
@@ -90,7 +91,7 @@ const ITEM_DATABASE = {
   },
   'baked-brie-with-truffle-honey-butter': {
     name: 'Baked Brie with Truffle-Honey Butter',
-    price: '$14.95',
+    price: 'AED14.95',
     numPrice: 14.95,
     calories: '920 Cal.',
     description: 'Warm Bread with Brie Cheese Drizzled with Truffle-Honey Butter and Housemade Orange Marmalade.',
@@ -102,7 +103,7 @@ const ITEM_DATABASE = {
   },
   'parmesan-truffle-fries': {
     name: 'Parmesan Truffle Fries',
-    price: '$11.50',
+    price: 'AED11.50',
     numPrice: 11.50,
     calories: '680 Cal.',
     description: 'Served with Truffle Aioli and fresh grated parmesan.',
@@ -114,7 +115,7 @@ const ITEM_DATABASE = {
   },
   'fresh-strawberry-cheesecake': {
     name: 'Fresh Strawberry Cheesecake',
-    price: '$10.50',
+    price: 'AED10.50',
     numPrice: 10.50,
     calories: '1010 Cal.',
     description: 'Our original legendary cheesecake topped with glazed fresh strawberries. Most popular for over 40 years!',
@@ -133,10 +134,12 @@ export default function MenuItemDetail() {
   // Order Customization States
   const [quantity, setQuantity] = useState(1);
   const [specialInstructions, setSpecialInstructions] = useState('');
-  const [extraDippingSauce, setExtraDippingSauce] = useState(false);
-  const [makeItSpicy, setMakeItSpicy] = useState(false);
-  const [extraCrispy, setExtraCrispy] = useState(false);
   const [showAddedModal, setShowAddedModal] = useState(false);
+  
+  const { getVariations } = useAdminData();
+  const [variations, setVariations] = useState([]);
+  const [selectedVariation, setSelectedVariation] = useState(null);
+  const [loadingVariations, setLoadingVariations] = useState(false);
 
   useEffect(() => {
     const onLocationChange = () => {
@@ -156,7 +159,7 @@ export default function MenuItemDetail() {
 
   // Resolve item properties with fallbacks
   const itemName = dbItem.name || locationState.name || itemSlug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-  const itemPrice = dbItem.price || locationState.price || '$11.95';
+  const itemPrice = dbItem.price || locationState.price || 'AED11.95';
   const baseNumPrice = dbItem.numPrice || (itemPrice ? parseFloat(itemPrice.replace(/[^0-9.-]+/g, "")) : 11.95);
   const itemCalories = dbItem.calories || '580 Cal.';
   const itemDescription = dbItem.description || locationState.description || 'Hand Breaded and Fried Crisp. Served with our signature Housemade dipping sauce.';
@@ -166,9 +169,26 @@ export default function MenuItemDetail() {
   const itemImage = dbItem.image || locationState.image || 'https://images.unsplash.com/photo-1541592106381-b31e9677c0e5?q=80&w=1000&auto=format&fit=crop';
   const itemTag = dbItem.tag || 'MADE FRESH FROM SCRATCH';
 
+  // Fetch variations
+  useEffect(() => {
+    const fetchVariations = async () => {
+      if (locationState.id) {
+        setLoadingVariations(true);
+        const data = await getVariations(locationState.id);
+        const activeVariations = data.filter(v => v.active);
+        setVariations(activeVariations);
+        if (activeVariations.length > 0) {
+          setSelectedVariation(activeVariations[0]);
+        }
+        setLoadingVariations(false);
+      }
+    };
+    fetchVariations();
+  }, [locationState.id]);
+
   // Calculate dynamic total price
-  const optionsAddonPrice = extraDippingSauce ? 1.50 : 0;
-  const singleItemPrice = baseNumPrice + optionsAddonPrice;
+  const currentNumPrice = selectedVariation ? selectedVariation.numPrice : baseNumPrice;
+  const singleItemPrice = currentNumPrice;
   const totalPrice = (singleItemPrice * quantity).toFixed(2);
 
   const handleBack = (e) => {
@@ -178,20 +198,16 @@ export default function MenuItemDetail() {
   };
 
   const handleStartOrder = () => {
-    // Collect selected customization notes
-    const activeOptions = [];
-    if (extraDippingSauce) activeOptions.push('Extra Dipping Sauce (+$1.50)');
-    if (makeItSpicy) activeOptions.push('Make it Spicy / Extra Seasoning');
-    if (extraCrispy) activeOptions.push('Cook Extra Crispy');
-
     const fullNotes = [
-      activeOptions.length > 0 ? `Options: ${activeOptions.join(', ')}` : '',
       specialInstructions ? `Note: "${specialInstructions}"` : ''
     ].filter(Boolean).join(' | ');
 
     addToCart({
+      id: locationState.id, // For tracking
+      variationId: selectedVariation ? (selectedVariation._id || selectedVariation.id) : null,
+      variationName: selectedVariation ? selectedVariation.name : null,
       name: itemName,
-      price: `$${singleItemPrice.toFixed(2)}`,
+      price: `AED${singleItemPrice.toFixed(2)}`,
       numPrice: singleItemPrice,
       img: itemImage,
       desc: itemDescription,
@@ -271,7 +287,7 @@ export default function MenuItemDetail() {
               {/* Price & Calories Badge */}
               <div className="flex items-center gap-4 mb-6 pb-6 border-b border-gray-100">
                 <span className="font-serif text-3xl font-extrabold text-[var(--theme-accent)]">
-                  ${singleItemPrice.toFixed(2)}
+                  AED{singleItemPrice.toFixed(2)}
                 </span>
                 <span className="bg-gray-100 text-gray-700 text-xs font-bold px-3 py-1.5 rounded-md">
                   {itemCalories}
@@ -296,51 +312,39 @@ export default function MenuItemDetail() {
               </div>
 
               {/* Customization Options */}
-              <div className="mb-8">
-                <h3 className="text-xs font-extrabold tracking-[0.15em] uppercase text-[var(--theme-primary)] mb-4 flex items-center gap-2">
-                  <span>✨ Customize Your Order</span>
-                </h3>
-                <div className="space-y-3">
-                  <label className="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:border-gray-300 cursor-pointer transition-colors bg-white">
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="checkbox"
-                        checked={extraDippingSauce}
-                        onChange={(e) => setExtraDippingSauce(e.target.checked)}
-                        className="w-4 h-4 text-[var(--theme-accent)] rounded focus:ring-2 focus:ring-[var(--theme-accent)]"
-                      />
-                      <span className="text-sm font-semibold text-gray-700">Extra Dipping Sauce</span>
-                    </div>
-                    <span className="text-xs font-bold text-gray-500">+ $1.50</span>
-                  </label>
-
-                  <label className="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:border-gray-300 cursor-pointer transition-colors bg-white">
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="checkbox"
-                        checked={makeItSpicy}
-                        onChange={(e) => setMakeItSpicy(e.target.checked)}
-                        className="w-4 h-4 text-[var(--theme-accent)] rounded focus:ring-2 focus:ring-[var(--theme-accent)]"
-                      />
-                      <span className="text-sm font-semibold text-gray-700">Make it Spicy / Extra Seasoning</span>
-                    </div>
-                    <span className="text-xs font-bold text-emerald-600">FREE</span>
-                  </label>
-
-                  <label className="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:border-gray-300 cursor-pointer transition-colors bg-white">
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="checkbox"
-                        checked={extraCrispy}
-                        onChange={(e) => setExtraCrispy(e.target.checked)}
-                        className="w-4 h-4 text-[var(--theme-accent)] rounded focus:ring-2 focus:ring-[var(--theme-accent)]"
-                      />
-                      <span className="text-sm font-semibold text-gray-700">Cook Extra Crispy</span>
-                    </div>
-                    <span className="text-xs font-bold text-emerald-600">FREE</span>
-                  </label>
+              {loadingVariations ? (
+                <div className="mb-8 p-4 bg-gray-50 rounded-lg text-sm text-gray-500 animate-pulse">Loading size options...</div>
+              ) : variations.length > 0 ? (
+                <div className="mb-8">
+                  <h3 className="text-xs font-extrabold tracking-[0.15em] uppercase text-[var(--theme-primary)] mb-4 flex items-center gap-2">
+                    <span>✨ Choose Your Size</span>
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {variations.map((v) => (
+                      <label 
+                        key={v._id || v.id}
+                        className={`flex flex-col p-4 rounded-xl border-2 cursor-pointer transition-all ${selectedVariation && (selectedVariation._id || selectedVariation.id) === (v._id || v.id) ? 'border-[var(--theme-accent)] bg-red-50/50' : 'border-gray-200 hover:border-gray-300 bg-white'}`}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <input 
+                            type="radio" 
+                            name="variation" 
+                            className="sr-only"
+                            checked={selectedVariation && (selectedVariation._id || selectedVariation.id) === (v._id || v.id)}
+                            onChange={() => setSelectedVariation(v)}
+                          />
+                          <span className="font-bold text-gray-800">{v.name}</span>
+                          {selectedVariation && (selectedVariation._id || selectedVariation.id) === (v._id || v.id) && (
+                            <Check size={16} className="text-[var(--theme-accent)]" />
+                          )}
+                        </div>
+                        <span className="text-sm font-semibold text-gray-600">AED{v.numPrice.toFixed(2)}</span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              ) : null}
+
 
               {/* Special Instructions Input */}
               <div className="mb-8">
@@ -387,7 +391,7 @@ export default function MenuItemDetail() {
                   className="flex-1 bg-[var(--theme-accent)] hover:opacity-90 text-white py-4 px-6 rounded-xl font-bold tracking-[0.15em] uppercase text-sm shadow-lg hover:shadow-xl transition-all transform active:scale-95 flex items-center justify-center gap-3"
                 >
                   <ShoppingBag size={20} />
-                  <span>Start an Order • Add to Bag (${totalPrice})</span>
+                  <span>Start an Order • Add to Bag (AED{totalPrice})</span>
                 </button>
               </div>
             </div>
@@ -417,7 +421,7 @@ export default function MenuItemDetail() {
               Added to Your Bag!
             </h3>
             <p className="text-gray-600 text-sm mb-6 font-medium">
-              You added <span className="font-bold text-gray-900">{quantity}x {itemName}</span> to your order for <span className="font-bold text-[var(--theme-accent)]">${totalPrice}</span>.
+              You added <span className="font-bold text-gray-900">{quantity}x {itemName} {selectedVariation ? `(${selectedVariation.name})` : ''}</span> to your order for <span className="font-bold text-[var(--theme-accent)]">AED{totalPrice}</span>.
             </p>
 
             <div className="space-y-3">

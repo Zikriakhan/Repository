@@ -27,7 +27,12 @@ export function CartProvider({ children }) {
 
   const addToCart = (item) => {
     setCartItems(prev => {
-      const existingItemIndex = prev.findIndex(i => i.name === item.name);
+      // Find existing item by matching BOTH name and variationName
+      const existingItemIndex = prev.findIndex(i => 
+        i.name === item.name && 
+        i.variationName === item.variationName
+      );
+      
       const addQty = item.quantity || 1;
 
       if (existingItemIndex >= 0) {
@@ -40,21 +45,21 @@ export function CartProvider({ children }) {
         return updatedCart;
       }
 
-      const numPrice = item.numPrice !== undefined ? item.numPrice : parseFloat((item.price || "$0").replace(/[^0-9.-]+/g, ""));
+      const numPrice = item.numPrice !== undefined ? item.numPrice : parseFloat((item.price || "AED0").replace(/[^0-9.-]+/g, ""));
 
       return [...prev, { ...item, quantity: addQty, numPrice }];
     });
   };
 
-  const removeFromCart = (itemName) => {
-    setCartItems(prev => prev.filter(item => item.name !== itemName));
+  const removeFromCart = (itemName, variationName) => {
+    setCartItems(prev => prev.filter(item => !(item.name === itemName && item.variationName === variationName)));
   };
 
-  const updateQuantity = (itemName, newQuantity) => {
+  const updateQuantity = (itemName, variationName, newQuantity) => {
     if (newQuantity < 1) return;
 
     setCartItems(prev => prev.map(item =>
-      item.name === itemName ? { ...item, quantity: newQuantity } : item
+      (item.name === itemName && item.variationName === variationName) ? { ...item, quantity: newQuantity } : item
     ));
   };
 

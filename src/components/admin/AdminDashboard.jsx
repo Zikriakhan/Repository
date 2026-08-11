@@ -9,12 +9,12 @@ import AdminPromos from './AdminPromos';
 
 const NAV = [
   { id: 'dashboard', path: '/admin/dashboard', label: 'Dashboard', icon: '📊' },
-  { id: 'theme',     path: '/admin/theme',     label: 'Theme & Colors', icon: '🎨' },
-  { id: 'menu',      path: '/admin/menu',      label: 'Menu Items', icon: '🍽️' },
-  { id: 'promos',    path: '/admin/promos',    label: 'Home Promos', icon: '🌟' },
-  { id: 'careers',   path: '/admin/careers',   label: 'Careers', icon: '💼' },
-  { id: 'rewards',   path: '/admin/rewards',   label: 'Rewards', icon: '⭐' },
-  { id: 'orders',    path: '/admin/orders',    label: 'Orders', icon: '📦' },
+  { id: 'theme', path: '/admin/theme', label: 'Theme & Colors', icon: '🎨' },
+  { id: 'menu', path: '/admin/menu', label: 'Menu Items', icon: '🍽️' },
+  { id: 'promos', path: '/admin/promos', label: 'Home Promos', icon: '🌟' },
+  { id: 'careers', path: '/admin/careers', label: 'Careers', icon: '💼' },
+  { id: 'rewards', path: '/admin/rewards', label: 'Rewards', icon: '⭐' },
+  { id: 'orders', path: '/admin/orders', label: 'Orders', icon: '📦' },
 ];
 
 function getPageFromPath(path) {
@@ -74,7 +74,10 @@ function Overview({ data, navigateTo }) {
   });
 
   const totalOrders = filteredOrders.length;
-  const totalRevenue = filteredOrders.reduce((sum, o) => sum + parseFloat(o.total || 0), 0);
+  const totalRevenue = filteredOrders.reduce((sum, o) => {
+    const val = parseFloat(o.total);
+    return sum + (isNaN(val) ? 0 : val);
+  }, 0);
 
   const subOrderText = filterDays === 'all' ? 'All time' : filterDays === 'today' ? 'Today' : filterDays === '7' ? 'Last 7 days' : 'Last 30 days';
 
@@ -110,7 +113,7 @@ function Overview({ data, navigateTo }) {
         <StatCard icon="💼" label="Active Jobs" value={activeCareers} color="#2563eb" sub="Open positions" onClick={() => navigateTo('careers')} />
         <StatCard icon="⭐" label="Rewards" value={activeRewards} color="#b8860b" sub="Active offers" onClick={() => navigateTo('rewards')} />
         <StatCard icon="📦" label="Orders" value={totalOrders} color="#059669" sub={subOrderText} onClick={() => navigateTo('orders')} />
-        <StatCard icon="💰" label="Revenue" value={`$${totalRevenue.toFixed(0)}`} color="#7c3aed" sub={subOrderText} />
+        <StatCard icon="💰" label="Revenue" value={`AED${totalRevenue.toFixed(0)}`} color="#10b981" sub={subOrderText} />
       </div>
 
       {/* Quick Actions */}
@@ -165,7 +168,7 @@ function Overview({ data, navigateTo }) {
                       {(order.items || []).slice(0, 2).map(i => i.name).join(', ')}
                       {(order.items || []).length > 2 && ` +${order.items.length - 2} more`}
                     </td>
-                    <td style={{ padding: '14px 16px', fontWeight: 700, color: '#92141f' }}>${parseFloat(order.total || 0).toFixed(2)}</td>
+                    <td style={{ padding: '14px 16px', fontWeight: 700, color: '#92141f' }}>AED{parseFloat(order.total || 0).toFixed(2)}</td>
                     <td style={{ padding: '14px 16px' }}>
                       <span style={{ padding: '4px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 700, background: bg, color }}>{order.status}</span>
                     </td>
@@ -198,7 +201,15 @@ function Overview({ data, navigateTo }) {
 
 export default function AdminDashboard({ currentPath, setCurrentPath, onLogout }) {
   const { data } = useAdminData();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
 
   // Derive active page from URL
   const activePage = getPageFromPath(currentPath);
@@ -218,13 +229,13 @@ export default function AdminDashboard({ currentPath, setCurrentPath, onLogout }
   const renderPage = () => {
     switch (activePage) {
       case 'dashboard': return <Overview data={data} navigateTo={navigateTo} />;
-      case 'theme':     return <AdminTheme />;
-      case 'menu':      return <AdminMenuItems />;
-      case 'promos':    return <AdminPromos />;
-      case 'careers':   return <AdminCareers />;
-      case 'rewards':   return <AdminRewards />;
-      case 'orders':    return <AdminOrders />;
-      default:          return <Overview data={data} navigateTo={navigateTo} />;
+      case 'theme': return <AdminTheme />;
+      case 'menu': return <AdminMenuItems />;
+      case 'promos': return <AdminPromos />;
+      case 'careers': return <AdminCareers />;
+      case 'rewards': return <AdminRewards />;
+      case 'orders': return <AdminOrders />;
+      default: return <Overview data={data} navigateTo={navigateTo} />;
     }
   };
 
@@ -232,17 +243,24 @@ export default function AdminDashboard({ currentPath, setCurrentPath, onLogout }
     <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', fontFamily: "'Inter', sans-serif", background: '#f8f8fb' }}>
       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
+      {/* Sidebar Overlay for Mobile */}
+      {isMobile && sidebarOpen && (
+        <div
+          onClick={() => setSidebarOpen(false)}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 19 }}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside style={{
-        width: sidebarOpen ? '260px' : '72px',
+      <aside className={`admin-sidebar ${sidebarOpen ? 'open' : 'closed'} ${isMobile ? 'mobile' : 'desktop'}`} style={{
         background: 'linear-gradient(180deg, #1a0a10 0%, #3a1e26 100%)',
         display: 'flex',
         flexDirection: 'column',
-        transition: 'width 0.25s cubic-bezier(0.4,0,0.2,1)',
+        transition: 'all 0.3s cubic-bezier(0.4,0,0.2,1)',
         overflow: 'hidden',
         flexShrink: 0,
         boxShadow: '4px 0 24px rgba(0,0,0,0.18)',
-        zIndex: 10,
+        zIndex: 20,
       }}>
         {/* Brand */}
         <div style={{ padding: '20px 16px', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', gap: '14px', minHeight: '90px' }}>
@@ -376,7 +394,7 @@ export default function AdminDashboard({ currentPath, setCurrentPath, onLogout }
         </header>
 
         {/* Page Content */}
-        <main style={{ flex: 1, overflowY: 'auto', padding: '36px 40px' }}>
+        <main className="admin-main-content" style={{ flex: 1, overflowY: 'auto' }}>
           {renderPage()}
         </main>
       </div>
@@ -386,7 +404,33 @@ export default function AdminDashboard({ currentPath, setCurrentPath, onLogout }
           0%, 100% { opacity: 1; }
           50% { opacity: 0.4; }
         }
+        .admin-sidebar {
+          width: 260px;
+        }
+        .admin-sidebar.desktop.closed {
+          width: 72px;
+        }
+        .admin-sidebar.mobile {
+          position: fixed;
+          top: 0;
+          bottom: 0;
+          left: 0;
+          transform: translateX(0);
+        }
+        .admin-sidebar.mobile.closed {
+          transform: translateX(-100%);
+        }
+        .admin-main-content {
+          padding: 36px 40px;
+        }
+        @media (max-width: 768px) {
+          .admin-main-content {
+            padding: 20px 16px;
+          }
+        }
       `}</style>
     </div>
   );
 }
+
+

@@ -9,7 +9,8 @@ const menuItemSchema = new mongoose.Schema({
   calories: { type: String },
   desc: { type: String },
   image: { type: String },
-  active: { type: Boolean, default: true }
+  active: { type: Boolean, default: true },
+  hasVariations: { type: Boolean, default: false }
 }, { timestamps: true });
 
 module.exports = mongoose.model('MenuItem', menuItemSchema);

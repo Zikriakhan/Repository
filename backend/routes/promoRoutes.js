@@ -17,13 +17,13 @@ router.put('/:name', async (req, res) => {
   try {
     const { name } = req.params;
     const updateData = req.body;
-    
+
     const promo = await Promo.findOneAndUpdate(
       { name },
       { $set: updateData },
       { new: true, upsert: true }
     );
-    
+
     res.json(promo);
   } catch (err) {
     res.status(400).json({ message: err.message });

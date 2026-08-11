@@ -17,9 +17,9 @@ const FriedMacCheesePromo = () => {
   const handleQuickOrder = (e) => {
     e.stopPropagation();
     const itemName = promo.title || "Aesthetic Penne Pasta";
-    const itemPrice = promo.price ? `$${parseFloat(promo.price).toFixed(2)}` : "$16.50";
+    const itemPrice = promo.price ? `AED${parseFloat(promo.price).toFixed(2)}` : "AED16.50";
     const itemNumPrice = promo.price ? parseFloat(promo.price) : 16.50;
-    
+
     addToCart({
       name: itemName,
       price: itemPrice,
@@ -65,7 +65,8 @@ const FriedMacCheesePromo = () => {
                 </>}
               </div>
 
-              <h2 className="font-serif text-[var(--theme-primary)] text-4xl sm:text-5xl md:text-6xl font-bold leading-tight mb-6" dangerouslySetInnerHTML={{ __html: promo.title || `Aesthetic Penne <br />
+              <h2 className="font-serif text-[var(--theme-primary)] text-4xl sm:text-5xl md:text-6xl font-bold leading-tight mb-6" dangerouslySetInnerHTML={{
+                __html: promo.title || `Aesthetic Penne <br />
                 <span className="text-[var(--theme-accent)] italic font-normal">&amp; Pasta</span>` }}>
               </h2>
 
