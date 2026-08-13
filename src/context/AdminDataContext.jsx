@@ -84,6 +84,18 @@ const getStoredCategories = () => {
   return DEFAULT_CATEGORIES;
 };
 
+const safeFetchJson = async (res) => {
+  if (!res || !res.ok) return null;
+  const contentType = res.headers.get('content-type') || '';
+  if (!contentType.includes('application/json')) return null;
+  try {
+    return await res.json();
+  } catch (err) {
+    console.warn('Response is not valid JSON:', err.message);
+    return null;
+  }
+};
+
 export function AdminDataProvider({ children }) {
   const [data, setData] = useState({
     categories: getStoredCategories(),
@@ -114,20 +126,18 @@ export function AdminDataProvider({ children }) {
         fetch(`${API_URL}/themes`).catch(() => null)
       ]);
 
-      const menuData = menuRes && menuRes.ok ? await menuRes.json() : [];
-      const categoriesData = categoriesRes && categoriesRes.ok ? await categoriesRes.json() : [];
-      const careers = careersRes && careersRes.ok ? await careersRes.json() : [];
-      const rewards = rewardsRes && rewardsRes.ok ? await rewardsRes.json() : [];
-      const promos = promosRes && promosRes.ok ? await promosRes.json() : [];
-      const themes = themesRes && themesRes.ok ? await themesRes.json() : [];
-      const activeTheme = themes.find(t => t.active) || (themes.length > 0 ? themes[0] : null);
+      const menuData = (await safeFetchJson(menuRes)) || [];
+      const categoriesData = (await safeFetchJson(categoriesRes)) || [];
+      const careers = (await safeFetchJson(careersRes)) || [];
+      const rewards = (await safeFetchJson(rewardsRes)) || [];
+      const promos = (await safeFetchJson(promosRes)) || [];
+      const themes = (await safeFetchJson(themesRes)) || [];
+      const activeTheme = Array.isArray(themes) && themes.length > 0 ? (themes.find(t => t.active) || themes[0]) : null;
 
       let remoteOrders = [];
       try {
         const ordersRes = await fetch(`${API_URL}/orders`);
-        if (ordersRes.ok) {
-          remoteOrders = await ordersRes.json();
-        }
+        remoteOrders = (await safeFetchJson(ordersRes)) || [];
       } catch (err) {
         console.warn('Backend API orders endpoint unavailable, maintaining local orders:', err.message);
       }
