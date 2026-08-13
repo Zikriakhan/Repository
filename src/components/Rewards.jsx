@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, Cake, Gift, User, Mail, Smartphone, Star } from 'lucide-react';
+import { Calendar, Cake, Gift, User, Mail, Star } from 'lucide-react';
 import { useAdminData } from '../context/AdminDataContext';
 
 const faqData = [
@@ -100,7 +100,7 @@ export default function Rewards() {
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-            {data.rewards.filter(r => r.active).map((reward, idx) => {
+            {data.rewards.filter(r => r.active).map((reward, _idx) => {
               // Pick an icon based on category/index
               let Icon = Gift;
               if (reward.category === 'Birthday' || reward.title.toLowerCase().includes('birthday') || reward.title.toLowerCase().includes('slice')) Icon = Cake;

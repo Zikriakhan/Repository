@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, ArrowRight, Star, Heart } from 'lucide-react';
+import { Sparkles, ArrowRight, Star } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAdminData } from '../context/AdminDataContext';
 

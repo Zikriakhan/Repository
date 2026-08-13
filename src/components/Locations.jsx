@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MapPin, ShoppingBag, Truck, Search, Compass, ChevronRight, Phone, Clock } from 'lucide-react';
+import { MapPin, ShoppingBag, Truck, Search, Compass, Clock } from 'lucide-react';
 
 const MOCK_LOCATIONS = [
   {

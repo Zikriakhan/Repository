@@ -185,7 +185,7 @@ export default function AdminCategories() {
 
           return (
             <div
-              key={cat.id || cat._id}
+              key={cat.id || cat._id || cat.slug}
               style={{
                 background: '#fff',
                 borderRadius: '16px',
@@ -260,7 +260,7 @@ export default function AdminCategories() {
           initial={modal.mode === 'edit' ? modal.category : null}
           onSave={(form) => {
             if (modal.mode === 'edit') {
-              updateCategory(modal.category.id || modal.category._id, form);
+              updateCategory(modal.category.id || modal.category._id || modal.category.slug, form);
             } else {
               addCategory(form);
             }
@@ -282,7 +282,7 @@ export default function AdminCategories() {
               <button onClick={() => setDeleteConfirm(null)} style={{ padding: '12px 28px', background: '#f3f4f6', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
               <button
                 onClick={() => {
-                  deleteCategory(deleteConfirm.id || deleteConfirm._id);
+                  deleteCategory(deleteConfirm.id || deleteConfirm._id || deleteConfirm.slug);
                   setDeleteConfirm(null);
                 }}
                 style={{ padding: '12px 28px', background: 'linear-gradient(135deg,#92141f,#a50e48)', border: 'none', borderRadius: '8px', fontWeight: 600, color: '#fff', cursor: 'pointer' }}

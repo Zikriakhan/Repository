@@ -26,7 +26,7 @@ router.post('/', async (req, res) => {
         let menuItem = null;
         try {
           menuItem = await MenuItem.findOne({ name: item.name });
-        } catch (e) {}
+        } catch (_e) {}
 
         let unitPrice = item.numPrice || item.price || (menuItem ? menuItem.numPrice : 0);
         let productId = menuItem ? menuItem._id : null;
@@ -40,7 +40,7 @@ router.post('/', async (req, res) => {
               unitPrice = variation.numPrice;
               variationName = variation.name;
             }
-          } catch (e) {}
+          } catch (_e) {}
         }
 
         const quantity = item.quantity || 1;

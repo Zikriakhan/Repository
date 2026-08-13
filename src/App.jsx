@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAdminData } from './context/AdminDataContext';
 import Header from './components/Header';
-import Hero from './components/Hero';
 import Home from './components/Home';
 import Footer from './components/Footer';
 import MenuShowcase from './components/MenuShowcase';
@@ -37,7 +36,7 @@ function App() {
           if (primary) document.documentElement.style.setProperty('--theme-primary', primary);
           if (accent) document.documentElement.style.setProperty('--theme-accent', accent);
           if (light) document.documentElement.style.setProperty('--theme-light', light);
-        } catch (e) {}
+        } catch (_e) {}
       }
     }
 
@@ -47,7 +46,7 @@ function App() {
     };
     window.addEventListener('popstate', onLocationChange);
     return () => window.removeEventListener('popstate', onLocationChange);
-  }, [data.theme]);
+  }, [data]);
 
   const handleLogin = () => {
     sessionStorage.setItem('ccf_admin_auth', 'true');

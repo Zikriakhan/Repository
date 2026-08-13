@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
 const Category = require('../models/Category');
 const MenuItem = require('../models/MenuItem');
 
@@ -24,23 +25,30 @@ router.get('/', async (req, res) => {
     let categories = await Category.find().sort({ displayOrder: 1, name: 1 });
     
     if (categories.length === 0) {
-      categories = await Category.insertMany(DEFAULT_CATEGORIES);
+      try {
+        categories = await Category.insertMany(DEFAULT_CATEGORIES);
+      } catch (_seedErr) {
+        categories = await Category.find().sort({ displayOrder: 1, name: 1 });
+      }
     }
     
     // Dynamically calculate current item counts from MenuItem collection
-    const counts = await MenuItem.aggregate([
-      { $group: { _id: '$category', count: { $sum: 1 } } }
-    ]);
+    let counts = [];
+    try {
+      counts = await MenuItem.aggregate([
+        { $group: { _id: '$category', count: { $sum: 1 } } }
+      ]);
+    } catch (_aggErr) { }
     
     const countMap = {};
-    counts.forEach(c => {
-      if (c._id) countMap[c._id.toLowerCase()] = c.count;
+    (counts || []).forEach(c => {
+      if (c && c._id) countMap[String(c._id).toLowerCase()] = c.count;
     });
 
     const result = categories.map(cat => {
-      const catObj = cat.toObject();
-      const actualCount = countMap[catObj.slug] !== undefined ? countMap[catObj.slug] : catObj.itemCount;
-      return { ...catObj, id: catObj._id, itemCount: actualCount };
+      const catObj = cat.toObject ? cat.toObject() : cat;
+      const actualCount = countMap[catObj.slug] !== undefined ? countMap[catObj.slug] : (catObj.itemCount || 0);
+      return { ...catObj, id: catObj._id || catObj.id, _id: catObj._id || catObj.id, itemCount: actualCount };
     });
 
     res.json(result);
@@ -51,21 +59,37 @@ router.get('/', async (req, res) => {
 
 // POST new category
 router.post('/', async (req, res) => {
-  const { name, icon, desc, displayOrder } = req.body;
-  const slug = req.body.slug || name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-');
-  
-  const category = new Category({
-    name,
-    slug,
-    icon: icon || '🍽️',
-    desc: desc || '',
-    displayOrder: displayOrder || 99,
-    active: true
-  });
+  const body = req.body || {};
+  const name = body.name || 'New Category';
+  const icon = body.icon || '🍽️';
+  const desc = body.desc || '';
+  const displayOrder = body.displayOrder !== undefined ? body.displayOrder : 99;
+  const active = body.active !== undefined ? body.active : true;
 
+  let slug = body.slug || name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-');
+  if (!slug) {
+    slug = `cat-${Date.now()}`;
+  }
+
+  // Ensure slug uniqueness
   try {
+    let existing = await Category.findOne({ slug });
+    if (existing) {
+      slug = `${slug}-${Date.now().toString().slice(-4)}`;
+    }
+
+    const category = new Category({
+      name,
+      slug,
+      icon,
+      desc,
+      displayOrder,
+      active
+    });
+
     const newCat = await category.save();
-    res.status(201).json({ ...newCat.toObject(), id: newCat._id });
+    const catObj = newCat.toObject();
+    res.status(201).json({ ...catObj, id: catObj._id, _id: catObj._id });
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
@@ -74,9 +98,16 @@ router.post('/', async (req, res) => {
 // PUT update category
 router.put('/:id', async (req, res) => {
   try {
-    const updated = await Category.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    let updated;
+    if (mongoose.Types.ObjectId.isValid(req.params.id)) {
+      updated = await Category.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    }
+    if (!updated) {
+      updated = await Category.findOneAndUpdate({ slug: req.params.id }, req.body, { new: true });
+    }
     if (!updated) return res.status(404).json({ message: 'Category not found' });
-    res.json({ ...updated.toObject(), id: updated._id });
+    const catObj = updated.toObject();
+    res.json({ ...catObj, id: catObj._id, _id: catObj._id });
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
@@ -85,7 +116,13 @@ router.put('/:id', async (req, res) => {
 // DELETE category
 router.delete('/:id', async (req, res) => {
   try {
-    const cat = await Category.findByIdAndDelete(req.params.id);
+    let cat;
+    if (mongoose.Types.ObjectId.isValid(req.params.id)) {
+      cat = await Category.findByIdAndDelete(req.params.id);
+    }
+    if (!cat) {
+      cat = await Category.findOneAndDelete({ slug: req.params.id });
+    }
     if (!cat) return res.status(404).json({ message: 'Category not found' });
     res.json({ message: 'Category deleted' });
   } catch (err) {

@@ -20,7 +20,7 @@ const NAV = [
 ];
 
 function getPageFromPath(path) {
-  const match = NAV.find(n => n.path === path || path === n.path);
+  const match = NAV.find(n => n.path === path);
   if (match) return match.id;
   if (path === '/admin') return 'dashboard';
   return 'dashboard';

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, ArrowRight, Award, UtensilsCrossed, Clock, Star } from 'lucide-react';
+import { ArrowRight, Award, UtensilsCrossed, Star } from 'lucide-react';
 import { useAdminData } from '../context/AdminDataContext';
 
 const Hero = () => {

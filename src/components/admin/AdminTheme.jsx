@@ -26,7 +26,7 @@ export default function AdminTheme() {
         }
       }
     }
-  }, [data.theme]);
+  }, [data]);
 
   const applyColors = (prim, acc, lgt) => {
     document.documentElement.style.setProperty('--theme-primary', prim);

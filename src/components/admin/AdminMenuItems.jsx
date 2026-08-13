@@ -25,7 +25,7 @@ function ItemFormModal({ category, initial, onSave, onClose }) {
         setLoadingVars(false);
       });
     }
-  }, [initial?.id]);
+  }, [isEdit, initial?.id, getVariations]);
 
   const handleAddVar = async () => {
     if (!varForm.name || !varForm.price) return;
@@ -266,6 +266,7 @@ function VariationsManagerModal({ item, onClose }) {
 
   useEffect(() => {
     fetchVariations();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchVariations = async () => {
@@ -500,7 +501,7 @@ export default function AdminMenuItems() {
                   No items found. Add your first item!
                 </td>
               </tr>
-            ) : items.map((item, idx) => (
+            ) : items.map((item, _idx) => (
               <tr key={item.id} style={{ borderBottom: '1px solid #f9f9f9', transition: 'background 0.15s' }}
                 onMouseEnter={e => e.currentTarget.style.background = '#fafbff'}
                 onMouseLeave={e => e.currentTarget.style.background = '#fff'}

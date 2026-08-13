@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ShoppingBag, Check, Plus, Minus, Info, Heart, Share2, ShieldCheck, Sparkles, ArrowRight } from 'lucide-react';
+import { ChevronLeft, ShoppingBag, Check, Plus, Minus, ShieldCheck, Sparkles, ArrowRight } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAdminData } from '../context/AdminDataContext';
 
@@ -184,7 +184,7 @@ export default function MenuItemDetail() {
       }
     };
     fetchVariations();
-  }, [locationState.id]);
+  }, [locationState.id, getVariations]);
 
   // Calculate dynamic total price
   const currentNumPrice = selectedVariation ? selectedVariation.numPrice : baseNumPrice;

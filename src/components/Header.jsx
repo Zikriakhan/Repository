@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingBag, User, Menu, X, Mail, Lock, CheckCircle, ShieldCheck, Sparkles } from 'lucide-react';
+import { ShoppingBag, User, Menu, X, Mail, Lock, CheckCircle, ShieldCheck } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 
 const Header = () => {

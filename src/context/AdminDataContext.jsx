@@ -6,9 +6,13 @@ export function useAdminData() {
   return useContext(AdminDataContext);
 }
 
-export const API_URL = 'https://repository-nine-navy.vercel.app/api'; // Use local backend where our changes live
+export const API_URL = import.meta.env.VITE_API_URL ||
+  (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ? 'https://repository-nine-navy.vercel.app/api'
+    : '/api');
 
 const STORAGE_KEY_ORDERS = 'cheesecake_admin_orders';
+const STORAGE_KEY_CATEGORIES = 'cheesecake_admin_categories';
 
 const DEFAULT_INITIAL_ORDERS = [
   {
@@ -67,9 +71,22 @@ const DEFAULT_CATEGORIES = [
   { id: 'cat-12', _id: 'cat-12', name: 'Salads', slug: 'salads', icon: '🥗', desc: 'Fresh garden salads with housemade dressings', itemCount: 5, active: true },
 ];
 
+const getStoredCategories = () => {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY_CATEGORIES);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch (e) {
+    console.error('Error loading stored categories:', e);
+  }
+  return DEFAULT_CATEGORIES;
+};
+
 export function AdminDataProvider({ children }) {
   const [data, setData] = useState({
-    categories: DEFAULT_CATEGORIES,
+    categories: getStoredCategories(),
     menuItems: {
       bites: [], bowls: [], desserts: [], breakfast: [],
       pastas: [], sandwiches: [], burgers: [], soups: [],
@@ -115,10 +132,29 @@ export function AdminDataProvider({ children }) {
         console.warn('Backend API orders endpoint unavailable, maintaining local orders:', err.message);
       }
 
-      const activeCategories = (categoriesData.length > 0 ? categoriesData : DEFAULT_CATEGORIES).map(c => ({
-        ...c,
-        id: c._id || c.id
-      }));
+      // Merge backend categories with local categories stored in localStorage
+      const localCats = getStoredCategories();
+      let activeCategories = [];
+
+      if (Array.isArray(categoriesData) && categoriesData.length > 0) {
+        activeCategories = categoriesData.map(c => ({ ...c, id: c._id || c.id }));
+      } else {
+        activeCategories = [...localCats];
+      }
+
+      // Preserve any custom categories in local storage not present on server
+      const serverSlugsOrIds = new Set(activeCategories.map(c => c._id || c.id || c.slug));
+      localCats.forEach(lc => {
+        const catKey = lc._id || lc.id || lc.slug;
+        if (!serverSlugsOrIds.has(catKey) && !serverSlugsOrIds.has(lc.slug)) {
+          activeCategories.push(lc);
+        }
+      });
+
+      // Update localStorage with complete category set
+      try {
+        localStorage.setItem(STORAGE_KEY_CATEGORIES, JSON.stringify(activeCategories));
+      } catch (e) { }
 
       // Base menu object with empty array for every known category slug
       const initialGrouped = {};
@@ -445,71 +481,134 @@ export function AdminDataProvider({ children }) {
   // --- Categories ---
   const addCategory = async (category) => {
     const slug = category.slug || category.name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-');
+    const tempId = `cat-${Date.now()}`;
+    const newCatObj = {
+      name: category.name,
+      slug,
+      icon: category.icon || '🍽️',
+      desc: category.desc || '',
+      displayOrder: category.displayOrder || 99,
+      active: category.active !== undefined ? category.active : true,
+      itemCount: 0,
+      id: tempId,
+      _id: tempId
+    };
+
+    // 1. Instantly update React state & localStorage
+    setData(prev => {
+      const existing = prev.categories || [];
+      const index = existing.findIndex(c => c.slug === slug || c.id === tempId);
+      let updated;
+      if (index >= 0) {
+        updated = [...existing];
+        updated[index] = { ...updated[index], ...newCatObj };
+      } else {
+        updated = [...existing, newCatObj];
+      }
+      try {
+        localStorage.setItem(STORAGE_KEY_CATEGORIES, JSON.stringify(updated));
+      } catch (e) { console.error('Failed to save category to localStorage:', e); }
+
+      return {
+        ...prev,
+        categories: updated,
+        menuItems: {
+          ...prev.menuItems,
+          [slug]: prev.menuItems[slug] || []
+        }
+      };
+    });
+
+    // 2. Persist to backend API
     try {
       const res = await fetch(`${API_URL}/categories`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...category, slug })
       });
-      let newCat;
       if (res.ok) {
-        newCat = await res.json();
-      } else {
-        newCat = { ...category, id: `cat-${Date.now()}`, _id: `cat-${Date.now()}`, slug, itemCount: 0, active: true };
-      }
-      newCat.id = newCat._id || newCat.id;
-
-      updateState(prev => ({
-        categories: [...(prev.categories || []), newCat],
-        menuItems: {
-          ...prev.menuItems,
-          [newCat.slug]: prev.menuItems[newCat.slug] || []
+        const serverCat = await res.json();
+        if (serverCat && (serverCat._id || serverCat.id)) {
+          const serverId = serverCat._id || serverCat.id;
+          const formattedServerCat = { ...serverCat, id: serverId, _id: serverId };
+          setData(prev => {
+            const updated = (prev.categories || []).map(c =>
+              (c.id === tempId || c.slug === slug) ? formattedServerCat : c
+            );
+            try {
+              localStorage.setItem(STORAGE_KEY_CATEGORIES, JSON.stringify(updated));
+            } catch (e) { }
+            return {
+              ...prev,
+              categories: updated,
+              menuItems: {
+                ...prev.menuItems,
+                [formattedServerCat.slug]: prev.menuItems[formattedServerCat.slug] || []
+              }
+            };
+          });
+          return formattedServerCat;
         }
-      }));
-      return newCat;
+      }
     } catch (err) {
-      console.error('Failed to add category:', err);
-      const fallbackCat = { ...category, id: `cat-${Date.now()}`, slug, itemCount: 0, active: true };
-      updateState(prev => ({
-        categories: [...(prev.categories || []), fallbackCat],
-        menuItems: { ...prev.menuItems, [slug]: prev.menuItems[slug] || [] }
-      }));
-      return fallbackCat;
+      console.warn('Backend API unavailable for adding category, retained locally:', err.message);
     }
+    return newCatObj;
   };
 
   const updateCategory = async (id, updates) => {
+    // 1. Instantly update local state & localStorage
+    setData(prev => {
+      const updated = (prev.categories || []).map(c =>
+        (c.id === id || c._id === id) ? { ...c, ...updates } : c
+      );
+      try {
+        localStorage.setItem(STORAGE_KEY_CATEGORIES, JSON.stringify(updated));
+      } catch (e) { console.error('Failed to update category in localStorage:', e); }
+      return { ...prev, categories: updated };
+    });
+
+    // 2. Sync to backend API
     try {
       const res = await fetch(`${API_URL}/categories/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates)
       });
-      let updatedCat;
       if (res.ok) {
-        updatedCat = await res.json();
-        updatedCat.id = updatedCat._id || updatedCat.id;
+        const serverCat = await res.json();
+        if (serverCat) {
+          const formatted = { ...serverCat, id: serverCat._id || serverCat.id };
+          setData(prev => {
+            const finalUpdated = (prev.categories || []).map(c =>
+              (c.id === id || c._id === id) ? formatted : c
+            );
+            try { localStorage.setItem(STORAGE_KEY_CATEGORIES, JSON.stringify(finalUpdated)); } catch (e) { }
+            return { ...prev, categories: finalUpdated };
+          });
+        }
       }
-      updateState(prev => ({
-        categories: (prev.categories || []).map(c => (c.id === id || c._id === id) ? { ...c, ...updates, ...(updatedCat || {}) } : c)
-      }));
     } catch (err) {
-      console.error('Failed to update category:', err);
-      updateState(prev => ({
-        categories: (prev.categories || []).map(c => (c.id === id || c._id === id) ? { ...c, ...updates } : c)
-      }));
+      console.warn('Backend API unavailable for updating category, updated locally:', err.message);
     }
   };
 
   const deleteCategory = async (id) => {
+    // 1. Instantly update local state & localStorage
+    setData(prev => {
+      const updated = (prev.categories || []).filter(c => c.id !== id && c._id !== id);
+      try {
+        localStorage.setItem(STORAGE_KEY_CATEGORIES, JSON.stringify(updated));
+      } catch (e) { console.error('Failed to delete category in localStorage:', e); }
+      return { ...prev, categories: updated };
+    });
+
+    // 2. Sync deletion to backend API
     try {
       await fetch(`${API_URL}/categories/${id}`, { method: 'DELETE' });
     } catch (err) {
-      console.error('Failed to delete category on server:', err);
+      console.warn('Backend API unavailable for deleting category, deleted locally:', err.message);
     }
-    updateState(prev => ({
-      categories: (prev.categories || []).filter(c => c.id !== id && c._id !== id)
-    }));
   };
 
   // --- Applications --- (Local for now)
