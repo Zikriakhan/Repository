@@ -568,7 +568,7 @@ export function AdminDataProvider({ children }) {
     // 1. Instantly update local state & localStorage
     setData(prev => {
       const updated = (prev.categories || []).map(c =>
-        (c.id === id || c._id === id) ? { ...c, ...updates } : c
+        (c.id === id || c._id === id || c.slug === id) ? { ...c, ...updates } : c
       );
       try {
         localStorage.setItem(STORAGE_KEY_CATEGORIES, JSON.stringify(updated));
@@ -576,9 +576,13 @@ export function AdminDataProvider({ children }) {
       return { ...prev, categories: updated };
     });
 
+    // Resolve optimal API target (MongoDB _id or slug)
+    const cat = (data.categories || []).find(c => c.id === id || c._id === id || c.slug === id);
+    const targetId = (cat && cat._id && String(cat._id).length === 24) ? cat._id : (cat?.slug || id);
+
     // 2. Sync to backend API
     try {
-      const res = await fetch(`${API_URL}/categories/${id}`, {
+      const res = await fetch(`${API_URL}/categories/${targetId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates)
@@ -588,7 +592,7 @@ export function AdminDataProvider({ children }) {
         const formatted = { ...serverCat, id: serverCat._id || serverCat.id };
         setData(prev => {
           const finalUpdated = (prev.categories || []).map(c =>
-            (c.id === id || c._id === id) ? formatted : c
+            (c.id === id || c._id === id || c.slug === targetId) ? formatted : c
           );
           try { localStorage.setItem(STORAGE_KEY_CATEGORIES, JSON.stringify(finalUpdated)); } catch (e) { }
           return { ...prev, categories: finalUpdated };
@@ -601,9 +605,13 @@ export function AdminDataProvider({ children }) {
   };
 
   const deleteCategory = async (id) => {
+    // Resolve target identifier
+    const cat = (data.categories || []).find(c => c.id === id || c._id === id || c.slug === id);
+    const targetId = (cat && cat._id && String(cat._id).length === 24) ? cat._id : (cat?.slug || id);
+
     // 1. Instantly update local state & localStorage
     setData(prev => {
-      const updated = (prev.categories || []).filter(c => c.id !== id && c._id !== id);
+      const updated = (prev.categories || []).filter(c => c.id !== id && c._id !== id && c.slug !== id && c.slug !== targetId);
       try {
         localStorage.setItem(STORAGE_KEY_CATEGORIES, JSON.stringify(updated));
       } catch (e) { console.error('Failed to delete category in localStorage:', e); }
@@ -612,7 +620,7 @@ export function AdminDataProvider({ children }) {
 
     // 2. Sync deletion to backend API
     try {
-      await fetch(`${API_URL}/categories/${id}`, { method: 'DELETE' });
+      await fetch(`${API_URL}/categories/${targetId}`, { method: 'DELETE' });
     } catch (err) {
       console.warn('Backend API unavailable for deleting category, deleted locally:', err.message);
     }

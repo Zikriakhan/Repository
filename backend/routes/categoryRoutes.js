@@ -95,15 +95,38 @@ router.post('/', async (req, res) => {
   }
 });
 
+const DUMMY_SLUG_MAP = {
+  'cat-1': 'bites',
+  'cat-2': 'bowls',
+  'cat-3': 'desserts',
+  'cat-4': 'breakfast',
+  'cat-5': 'pastas',
+  'cat-6': 'sandwiches',
+  'cat-7': 'burgers',
+  'cat-8': 'soups',
+  'cat-9': 'appetizers',
+  'cat-10': 'drinks',
+  'cat-11': 'pizzas',
+  'cat-12': 'salads'
+};
+
 // PUT update category
 router.put('/:id', async (req, res) => {
   try {
+    const rawId = req.params.id;
+    const target = DUMMY_SLUG_MAP[rawId] || rawId;
     let updated;
-    if (mongoose.Types.ObjectId.isValid(req.params.id)) {
-      updated = await Category.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    
+    if (mongoose.Types.ObjectId.isValid(target)) {
+      updated = await Category.findByIdAndUpdate(target, req.body, { new: true });
     }
     if (!updated) {
-      updated = await Category.findOneAndUpdate({ slug: req.params.id }, req.body, { new: true });
+      updated = await Category.findOneAndUpdate({ slug: target.toLowerCase() }, req.body, { new: true });
+    }
+    if (!updated && req.body && req.body.name) {
+      const slug = req.body.slug || target.toLowerCase();
+      const newCat = new Category({ ...req.body, slug });
+      updated = await newCat.save();
     }
     if (!updated) return res.status(404).json({ message: 'Category not found' });
     const catObj = updated.toObject();
@@ -116,14 +139,15 @@ router.put('/:id', async (req, res) => {
 // DELETE category
 router.delete('/:id', async (req, res) => {
   try {
+    const rawId = req.params.id;
+    const target = DUMMY_SLUG_MAP[rawId] || rawId;
     let cat;
-    if (mongoose.Types.ObjectId.isValid(req.params.id)) {
-      cat = await Category.findByIdAndDelete(req.params.id);
+    if (mongoose.Types.ObjectId.isValid(target)) {
+      cat = await Category.findByIdAndDelete(target);
     }
     if (!cat) {
-      cat = await Category.findOneAndDelete({ slug: req.params.id });
+      cat = await Category.findOneAndDelete({ slug: target.toLowerCase() });
     }
-    if (!cat) return res.status(404).json({ message: 'Category not found' });
     res.json({ message: 'Category deleted' });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -131,3 +155,4 @@ router.delete('/:id', async (req, res) => {
 });
 
 module.exports = router;
+
