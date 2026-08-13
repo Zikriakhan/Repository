@@ -32,6 +32,14 @@ app.use(async (req, res, next) => {
   next();
 });
 
+// Normalize request URL for Vercel serverless rewrites
+app.use((req, res, next) => {
+  if (req.url.startsWith('/api/index.js')) {
+    req.url = req.url.replace('/api/index.js', '') || '/';
+  }
+  next();
+});
+
 // Import routes
 const menuRoutes = require('./routes/menuRoutes');
 const careerRoutes = require('./routes/careerRoutes');

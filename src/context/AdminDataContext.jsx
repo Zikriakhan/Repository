@@ -8,7 +8,7 @@ export function useAdminData() {
 
 export const API_URL = import.meta.env.VITE_API_URL ||
   (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-    ? 'https://repository-nine-navy.vercel.app/api'
+    ? 'http://localhost:5000/api'
     : '/api');
 
 const STORAGE_KEY_ORDERS = 'cheesecake_admin_orders';
@@ -536,29 +536,27 @@ export function AdminDataProvider({ children }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...category, slug })
       });
-      if (res.ok) {
-        const serverCat = await res.json();
-        if (serverCat && (serverCat._id || serverCat.id)) {
-          const serverId = serverCat._id || serverCat.id;
-          const formattedServerCat = { ...serverCat, id: serverId, _id: serverId };
-          setData(prev => {
-            const updated = (prev.categories || []).map(c =>
-              (c.id === tempId || c.slug === slug) ? formattedServerCat : c
-            );
-            try {
-              localStorage.setItem(STORAGE_KEY_CATEGORIES, JSON.stringify(updated));
-            } catch (e) { }
-            return {
-              ...prev,
-              categories: updated,
-              menuItems: {
-                ...prev.menuItems,
-                [formattedServerCat.slug]: prev.menuItems[formattedServerCat.slug] || []
-              }
-            };
-          });
-          return formattedServerCat;
-        }
+      const serverCat = await safeFetchJson(res);
+      if (serverCat && (serverCat._id || serverCat.id)) {
+        const serverId = serverCat._id || serverCat.id;
+        const formattedServerCat = { ...serverCat, id: serverId, _id: serverId };
+        setData(prev => {
+          const updated = (prev.categories || []).map(c =>
+            (c.id === tempId || c.slug === slug) ? formattedServerCat : c
+          );
+          try {
+            localStorage.setItem(STORAGE_KEY_CATEGORIES, JSON.stringify(updated));
+          } catch (_e) { }
+          return {
+            ...prev,
+            categories: updated,
+            menuItems: {
+              ...prev.menuItems,
+              [formattedServerCat.slug]: prev.menuItems[formattedServerCat.slug] || []
+            }
+          };
+        });
+        return formattedServerCat;
       }
     } catch (err) {
       console.warn('Backend API unavailable for adding category, retained locally:', err.message);
@@ -574,7 +572,7 @@ export function AdminDataProvider({ children }) {
       );
       try {
         localStorage.setItem(STORAGE_KEY_CATEGORIES, JSON.stringify(updated));
-      } catch (e) { console.error('Failed to update category in localStorage:', e); }
+      } catch (_e) { console.error('Failed to update category in localStorage:', _e); }
       return { ...prev, categories: updated };
     });
 
@@ -585,20 +583,19 @@ export function AdminDataProvider({ children }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates)
       });
-      if (res.ok) {
-        const serverCat = await res.json();
-        if (serverCat) {
-          const formatted = { ...serverCat, id: serverCat._id || serverCat.id };
-          setData(prev => {
-            const finalUpdated = (prev.categories || []).map(c =>
-              (c.id === id || c._id === id) ? formatted : c
-            );
-            try { localStorage.setItem(STORAGE_KEY_CATEGORIES, JSON.stringify(finalUpdated)); } catch (e) { }
-            return { ...prev, categories: finalUpdated };
-          });
-        }
+      const serverCat = await safeFetchJson(res);
+      if (serverCat) {
+        const formatted = { ...serverCat, id: serverCat._id || serverCat.id };
+        setData(prev => {
+          const finalUpdated = (prev.categories || []).map(c =>
+            (c.id === id || c._id === id) ? formatted : c
+          );
+          try { localStorage.setItem(STORAGE_KEY_CATEGORIES, JSON.stringify(finalUpdated)); } catch (e) { }
+          return { ...prev, categories: finalUpdated };
+        });
       }
-    } catch (err) {
+    }
+    catch (err) {
       console.warn('Backend API unavailable for updating category, updated locally:', err.message);
     }
   };
