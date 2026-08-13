@@ -38,8 +38,11 @@ export default function MenuShowcase() {
 
   const { data } = useAdminData();
 
-  const availableCategories = Object.keys(data.menuItems).filter(cat => data.menuItems[cat]?.some(i => i.active));
-  const categoryTabs = ["ALL", ...availableCategories.map(c => c.toUpperCase())];
+  const activeCategoriesList = (data.categories && data.categories.length > 0)
+    ? data.categories.filter(c => c.active !== false)
+    : Object.keys(data.menuItems || {}).map(slug => ({ slug, name: slug.charAt(0).toUpperCase() + slug.slice(1), icon: '🍽️' }));
+
+  const categoryTabs = ["ALL", ...activeCategoriesList.map(c => c.slug.toUpperCase())];
 
   const filterBySearch = (items) => {
     if (!searchQuery) return items;
@@ -73,18 +76,22 @@ export default function MenuShowcase() {
       {/* Sticky Horizontal Category Filter Bar */}
       <nav className="bg-white/80 backdrop-blur-xl border-b border-gray-200 sticky top-[65px] z-30 shadow-sm transition-all">
         <div className="max-w-[1440px] mx-auto px-6 overflow-x-auto no-scrollbar flex items-center gap-8 py-3 md:py-4 text-[11px] md:text-[12px] font-bold tracking-[0.15em] uppercase text-gray-500">
-          {categoryTabs.map((cat, idx) => (
-            <button
-              key={idx}
-              onClick={() => setActiveCategory(cat)}
-              className={`whitespace-nowrap transition-all py-2 border-b-2 ${activeCategory === cat
-                ? 'text-[#9e2a4b] border-[#9e2a4b] scale-105'
-                : 'border-transparent hover:text-[#9e2a4b] hover:border-gray-300'
-                }`}
-            >
-              {cat}
-            </button>
-          ))}
+          {categoryTabs.map((catTab, idx) => {
+            const catObj = activeCategoriesList.find(c => c.slug.toUpperCase() === catTab);
+            return (
+              <button
+                key={idx}
+                onClick={() => setActiveCategory(catTab)}
+                className={`whitespace-nowrap transition-all py-2 border-b-2 flex items-center gap-1.5 ${activeCategory === catTab
+                  ? 'text-[#9e2a4b] border-[#9e2a4b] scale-105'
+                  : 'border-transparent hover:text-[#9e2a4b] hover:border-gray-300'
+                  }`}
+              >
+                {catObj && <span>{catObj.icon}</span>}
+                <span>{catObj ? catObj.name.toUpperCase() : catTab}</span>
+              </button>
+            );
+          })}
         </div>
       </nav>
 
@@ -106,26 +113,29 @@ export default function MenuShowcase() {
           </div>
         </div>
 
-        {/* Dynamic Sections based on availableCategories */}
-        {availableCategories.length === 0 ? (
+        {/* Dynamic Sections based on activeCategoriesList */}
+        {activeCategoriesList.length === 0 ? (
           <div className="text-center py-20">
             <p className="text-2xl font-serif text-gray-500">No menu items found.</p>
           </div>
         ) : (
-          availableCategories.map(cat => {
+          activeCategoriesList.map(catObj => {
+            const cat = catObj.slug;
             const categoryItems = data.menuItems[cat]?.filter(i => i.active) || [];
             const filteredItems = filterBySearch(categoryItems);
             const isCategoryActive = activeCategory === "ALL" || activeCategory === cat.toUpperCase();
 
-            if (!isCategoryActive || filteredItems.length === 0) return null;
+            if (!isCategoryActive) return null;
 
             return (
               <div className="mb-24 animate-fade-in" key={cat}>
                 <div className="flex flex-col sm:flex-row sm:items-end justify-between border-b-2 border-gray-200/60 pb-4 mb-10">
                   <div>
-                    <h2 className="font-serif text-3xl md:text-5xl font-bold text-[#1a0a10] capitalize tracking-tight">
-                      {cat}
+                    <h2 className="font-serif text-3xl md:text-5xl font-bold text-[#1a0a10] capitalize tracking-tight flex items-center gap-3">
+                      <span>{catObj.icon}</span>
+                      <span>{catObj.name}</span>
                     </h2>
+                    {catObj.desc && <p className="text-sm text-gray-500 font-normal mt-1">{catObj.desc}</p>}
                   </div>
                   <button
                     onClick={() => setActiveCategory(cat.toUpperCase())}

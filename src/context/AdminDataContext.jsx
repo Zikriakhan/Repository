@@ -6,7 +6,7 @@ export function useAdminData() {
   return useContext(AdminDataContext);
 }
 
-export const API_URL = 'http://localhost:5000/api'; // Use local backend where our changes live
+export const API_URL = 'https://repository-nine-navy.vercel.app/api'; // Use local backend where our changes live
 
 const STORAGE_KEY_ORDERS = 'cheesecake_admin_orders';
 
@@ -52,9 +52,29 @@ const getStoredOrders = () => {
   return DEFAULT_INITIAL_ORDERS;
 };
 
+const DEFAULT_CATEGORIES = [
+  { id: 'cat-1', _id: 'cat-1', name: 'Bites', slug: 'bites', icon: '🍢', desc: 'Handcrafted small bites and appetizers', itemCount: 5, active: true },
+  { id: 'cat-2', _id: 'cat-2', name: 'Bowls', slug: 'bowls', icon: '🥗', desc: 'Nutrient-packed delicious bowls', itemCount: 2, active: true },
+  { id: 'cat-3', _id: 'cat-3', name: 'Desserts', slug: 'desserts', icon: '🍰', desc: 'World-famous cheesecakes and specialty desserts', itemCount: 10, active: true },
+  { id: 'cat-4', _id: 'cat-4', name: 'Breakfast', slug: 'breakfast', icon: '🍳', desc: 'Fresh breakfast favorites served all day', itemCount: 6, active: true },
+  { id: 'cat-5', _id: 'cat-5', name: 'Pastas', slug: 'pastas', icon: '🍝', desc: 'Handmade Italian style signature pastas', itemCount: 17, active: true },
+  { id: 'cat-6', _id: 'cat-6', name: 'Sandwiches', slug: 'sandwiches', icon: '🥪', desc: 'Gourmet sandwiches and rolls', itemCount: 1, active: true },
+  { id: 'cat-7', _id: 'cat-7', name: 'Burgers', slug: 'burgers', icon: '🍔', desc: 'Juicy handcrafted beef and chicken burgers', itemCount: 5, active: true },
+  { id: 'cat-8', _id: 'cat-8', name: 'Soups', slug: 'soups', icon: '🍲', desc: 'Rich and creamy comforting soups', itemCount: 5, active: true },
+  { id: 'cat-9', _id: 'cat-9', name: 'Appetizers', slug: 'appetizers', icon: '🥟', desc: 'Flavorful starters for sharing', itemCount: 17, active: true },
+  { id: 'cat-10', _id: 'cat-10', name: 'Drinks', slug: 'drinks', icon: '🥤', desc: 'Refreshing beverages, shakes, and cold coffees', itemCount: 22, active: true },
+  { id: 'cat-11', _id: 'cat-11', name: 'Pizzas', slug: 'pizzas', icon: '🍕', desc: 'Wood-fired crispy dough pizzas', itemCount: 9, active: true },
+  { id: 'cat-12', _id: 'cat-12', name: 'Salads', slug: 'salads', icon: '🥗', desc: 'Fresh garden salads with housemade dressings', itemCount: 5, active: true },
+];
+
 export function AdminDataProvider({ children }) {
   const [data, setData] = useState({
-    menuItems: { bites: [], bowls: [], desserts: [], breakfast: [] },
+    categories: DEFAULT_CATEGORIES,
+    menuItems: {
+      bites: [], bowls: [], desserts: [], breakfast: [],
+      pastas: [], sandwiches: [], burgers: [], soups: [],
+      appetizers: [], drinks: [], pizzas: [], salads: []
+    },
     careers: [],
     rewards: [],
     orders: getStoredOrders(),
@@ -68,8 +88,9 @@ export function AdminDataProvider({ children }) {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [menuRes, careersRes, rewardsRes, promosRes, themesRes] = await Promise.all([
+      const [menuRes, categoriesRes, careersRes, rewardsRes, promosRes, themesRes] = await Promise.all([
         fetch(`${API_URL}/menu`).catch(() => null),
+        fetch(`${API_URL}/categories`).catch(() => null),
         fetch(`${API_URL}/careers`).catch(() => null),
         fetch(`${API_URL}/rewards`).catch(() => null),
         fetch(`${API_URL}/promos`).catch(() => null),
@@ -77,6 +98,7 @@ export function AdminDataProvider({ children }) {
       ]);
 
       const menuData = menuRes && menuRes.ok ? await menuRes.json() : [];
+      const categoriesData = categoriesRes && categoriesRes.ok ? await categoriesRes.json() : [];
       const careers = careersRes && careersRes.ok ? await careersRes.json() : [];
       const rewards = rewardsRes && rewardsRes.ok ? await rewardsRes.json() : [];
       const promos = promosRes && promosRes.ok ? await promosRes.json() : [];
@@ -93,12 +115,24 @@ export function AdminDataProvider({ children }) {
         console.warn('Backend API orders endpoint unavailable, maintaining local orders:', err.message);
       }
 
+      const activeCategories = (categoriesData.length > 0 ? categoriesData : DEFAULT_CATEGORIES).map(c => ({
+        ...c,
+        id: c._id || c.id
+      }));
+
+      // Base menu object with empty array for every known category slug
+      const initialGrouped = {};
+      activeCategories.forEach(cat => {
+        initialGrouped[cat.slug] = [];
+      });
+
       // Group menu items by category
       const groupedMenu = menuData.reduce((acc, item) => {
-        acc[item.category] = acc[item.category] || [];
-        acc[item.category].push({ ...item, id: item._id });
+        const catSlug = (item.category || '').toLowerCase();
+        acc[catSlug] = acc[catSlug] || [];
+        acc[catSlug].push({ ...item, id: item._id });
         return acc;
-      }, { bites: [], bowls: [], desserts: [], breakfast: [] });
+      }, initialGrouped);
 
       setData(prev => {
         let finalOrders = prev.orders;
@@ -107,12 +141,13 @@ export function AdminDataProvider({ children }) {
           const existingIds = new Set(formattedRemote.map(o => o.id));
           const localOnly = (prev.orders || []).filter(o => !existingIds.has(o.id));
           finalOrders = [...formattedRemote, ...localOnly];
-          try { localStorage.setItem(STORAGE_KEY_ORDERS, JSON.stringify(finalOrders)); } catch(e){}
+          try { localStorage.setItem(STORAGE_KEY_ORDERS, JSON.stringify(finalOrders)); } catch (e) { }
         }
 
         return {
           ...prev,
-          menuItems: Object.keys(groupedMenu).some(k => groupedMenu[k].length > 0) ? groupedMenu : prev.menuItems,
+          categories: activeCategories,
+          menuItems: Object.keys(groupedMenu).length > 0 ? groupedMenu : prev.menuItems,
           careers: careers.length > 0 ? careers.map(c => ({ ...c, id: c._id })) : prev.careers,
           rewards: rewards.length > 0 ? rewards.map(r => ({ ...r, id: r._id })) : prev.rewards,
           orders: finalOrders,
@@ -336,7 +371,7 @@ export function AdminDataProvider({ children }) {
         if (createdServerOrder && createdServerOrder._id) {
           setData(prev => {
             const updated = prev.orders.map(o => o.id === newOrderObj.id ? { ...o, id: createdServerOrder._id, _id: createdServerOrder._id } : o);
-            try { localStorage.setItem(STORAGE_KEY_ORDERS, JSON.stringify(updated)); } catch(e){}
+            try { localStorage.setItem(STORAGE_KEY_ORDERS, JSON.stringify(updated)); } catch (e) { }
             return { ...prev, orders: updated };
           });
         }
@@ -349,7 +384,7 @@ export function AdminDataProvider({ children }) {
   const updateOrderStatus = async (id, status) => {
     setData(prev => {
       const updated = (prev.orders || []).map(o => (o.id === id || o._id === id) ? { ...o, status } : o);
-      try { localStorage.setItem(STORAGE_KEY_ORDERS, JSON.stringify(updated)); } catch(e){}
+      try { localStorage.setItem(STORAGE_KEY_ORDERS, JSON.stringify(updated)); } catch (e) { }
       return { ...prev, orders: updated };
     });
 
@@ -407,6 +442,76 @@ export function AdminDataProvider({ children }) {
     } catch (err) { console.error(err); }
   };
 
+  // --- Categories ---
+  const addCategory = async (category) => {
+    const slug = category.slug || category.name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-');
+    try {
+      const res = await fetch(`${API_URL}/categories`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...category, slug })
+      });
+      let newCat;
+      if (res.ok) {
+        newCat = await res.json();
+      } else {
+        newCat = { ...category, id: `cat-${Date.now()}`, _id: `cat-${Date.now()}`, slug, itemCount: 0, active: true };
+      }
+      newCat.id = newCat._id || newCat.id;
+
+      updateState(prev => ({
+        categories: [...(prev.categories || []), newCat],
+        menuItems: {
+          ...prev.menuItems,
+          [newCat.slug]: prev.menuItems[newCat.slug] || []
+        }
+      }));
+      return newCat;
+    } catch (err) {
+      console.error('Failed to add category:', err);
+      const fallbackCat = { ...category, id: `cat-${Date.now()}`, slug, itemCount: 0, active: true };
+      updateState(prev => ({
+        categories: [...(prev.categories || []), fallbackCat],
+        menuItems: { ...prev.menuItems, [slug]: prev.menuItems[slug] || [] }
+      }));
+      return fallbackCat;
+    }
+  };
+
+  const updateCategory = async (id, updates) => {
+    try {
+      const res = await fetch(`${API_URL}/categories/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
+      });
+      let updatedCat;
+      if (res.ok) {
+        updatedCat = await res.json();
+        updatedCat.id = updatedCat._id || updatedCat.id;
+      }
+      updateState(prev => ({
+        categories: (prev.categories || []).map(c => (c.id === id || c._id === id) ? { ...c, ...updates, ...(updatedCat || {}) } : c)
+      }));
+    } catch (err) {
+      console.error('Failed to update category:', err);
+      updateState(prev => ({
+        categories: (prev.categories || []).map(c => (c.id === id || c._id === id) ? { ...c, ...updates } : c)
+      }));
+    }
+  };
+
+  const deleteCategory = async (id) => {
+    try {
+      await fetch(`${API_URL}/categories/${id}`, { method: 'DELETE' });
+    } catch (err) {
+      console.error('Failed to delete category on server:', err);
+    }
+    updateState(prev => ({
+      categories: (prev.categories || []).filter(c => c.id !== id && c._id !== id)
+    }));
+  };
+
   // --- Applications --- (Local for now)
   const addApplication = (application) => updateState(prev => ({
     applications: [...prev.applications, { ...application, id: `_${Math.random().toString(36).slice(2, 9)}`, date: new Date().toISOString() }]
@@ -420,6 +525,7 @@ export function AdminDataProvider({ children }) {
   return (
     <AdminDataContext.Provider value={{
       data, loading,
+      addCategory, updateCategory, deleteCategory,
       addMenuItem, updateMenuItem, deleteMenuItem,
       getVariations, addVariation, updateVariation, deleteVariation,
       addCareer, updateCareer, deleteCareer,

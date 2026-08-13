@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAdminData } from '../../context/AdminDataContext';
 import AdminMenuItems from './AdminMenuItems';
+import AdminCategories from './AdminCategories';
 import AdminCareers from './AdminCareers';
 import AdminRewards from './AdminRewards';
 import AdminOrders from './AdminOrders';
@@ -10,6 +11,7 @@ import AdminPromos from './AdminPromos';
 const NAV = [
   { id: 'dashboard', path: '/admin/dashboard', label: 'Dashboard', icon: '📊' },
   { id: 'theme', path: '/admin/theme', label: 'Theme & Colors', icon: '🎨' },
+  { id: 'categories', path: '/admin/categories', label: 'Categories', icon: '🏷️' },
   { id: 'menu', path: '/admin/menu', label: 'Menu Items', icon: '🍽️' },
   { id: 'promos', path: '/admin/promos', label: 'Home Promos', icon: '🌟' },
   { id: 'careers', path: '/admin/careers', label: 'Careers', icon: '💼' },
@@ -230,6 +232,7 @@ export default function AdminDashboard({ currentPath, setCurrentPath, onLogout }
     switch (activePage) {
       case 'dashboard': return <Overview data={data} navigateTo={navigateTo} />;
       case 'theme': return <AdminTheme />;
+      case 'categories': return <AdminCategories />;
       case 'menu': return <AdminMenuItems />;
       case 'promos': return <AdminPromos />;
       case 'careers': return <AdminCareers />;

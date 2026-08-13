@@ -7,8 +7,9 @@ const EMPTY_ITEM = { name: '', price: '', calories: '', rating: 4.5, desc: '', i
 const PRESET_SIZES = ['Small', 'Medium', 'Large', 'Extra Large', 'Regular', 'Half Portion', 'Full Portion', 'Family Size'];
 
 function ItemFormModal({ category, initial, onSave, onClose }) {
-  const { getVariations, addVariation, deleteVariation } = useAdminData();
+  const { data, getVariations, addVariation, deleteVariation } = useAdminData();
   const [form, setForm] = useState(initial || EMPTY_ITEM);
+  const [targetCategory, setTargetCategory] = useState(initial?.category || category || 'bites');
   const [uploading, setUploading] = useState(false);
   const [variationsList, setVariationsList] = useState([]);
   const [loadingVars, setLoadingVars] = useState(false);
@@ -85,8 +86,24 @@ function ItemFormModal({ category, initial, onSave, onClose }) {
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
       <div style={{ background: '#fff', borderRadius: '16px', padding: '36px', width: '100%', maxWidth: '560px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 32px 80px rgba(0,0,0,0.3)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px' }}>
-          <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 700, color: '#3a1e26' }}>{isEdit ? 'Edit Item' : `Add New ${category.charAt(0).toUpperCase() + category.slice(1)} Item`}</h2>
+          <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 700, color: '#3a1e26' }}>{isEdit ? 'Edit Item' : 'Add New Menu Item'}</h2>
           <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', color: '#888', lineHeight: 1 }}>×</button>
+        </div>
+
+        {/* Category Selection Dropdown */}
+        <div style={{ marginBottom: '16px' }}>
+          <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#666', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>Category</label>
+          <select
+            value={targetCategory}
+            onChange={e => setTargetCategory(e.target.value)}
+            style={{ width: '100%', padding: '10px 14px', border: '1.5px solid #e5e7eb', borderRadius: '8px', fontSize: '14px', boxSizing: 'border-box', outline: 'none', background: '#fff', cursor: 'pointer' }}
+          >
+            {(data.categories || []).map(c => (
+              <option key={c.id || c.slug} value={c.slug}>
+                {c.icon || '🍽️'} {c.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         {[
@@ -228,7 +245,7 @@ function ItemFormModal({ category, initial, onSave, onClose }) {
         <div style={{ display: 'flex', gap: '12px' }}>
           <button onClick={onClose} style={{ flex: 1, padding: '12px', background: '#f3f4f6', border: 'none', borderRadius: '8px', fontWeight: 600, fontSize: '14px', cursor: 'pointer', color: '#444' }}>Cancel</button>
           <button
-            onClick={() => { onSave(form, variationsList); onClose(); }}
+            onClick={() => { onSave(form, variationsList, targetCategory); onClose(); }}
             style={{ flex: 1, padding: '12px', background: 'linear-gradient(135deg,#92141f,#a50e48)', border: 'none', borderRadius: '8px', fontWeight: 600, fontSize: '14px', cursor: 'pointer', color: '#fff', boxShadow: '0 4px 12px rgba(215,19,94,0.3)' }}
           >
             {isEdit ? 'Save Changes' : 'Add Item'}
@@ -444,11 +461,15 @@ export default function AdminMenuItems() {
 
       {/* Category Tabs */}
       <div style={{ display: 'flex', gap: '10px', marginBottom: '24px', flexWrap: 'wrap' }}>
-        {Object.keys(data.menuItems || {}).map(tab => (
-          <button key={tab} onClick={() => setActiveTab(tab)} style={tabStyle(tab)}>
-            {tab.charAt(0).toUpperCase() + tab.slice(1)} ({(data.menuItems[tab] || []).length})
-          </button>
-        ))}
+        {(data.categories || []).map(cat => {
+          const slug = cat.slug;
+          const count = (data.menuItems[slug] || []).length;
+          return (
+            <button key={slug} onClick={() => setActiveTab(slug)} style={tabStyle(slug)}>
+              {cat.icon || '🍽️'} {cat.name} ({count})
+            </button>
+          );
+        })}
       </div>
 
       {/* Search */}
@@ -544,16 +565,19 @@ export default function AdminMenuItems() {
         <ItemFormModal
           category={activeTab}
           initial={modal.mode === 'edit' ? modal.item : null}
-          onSave={async (form, initialVariations) => {
+          onSave={async (form, initialVariations, selectedCategory) => {
+            const finalCategory = selectedCategory || activeTab;
             if (modal.mode === 'edit') {
-              updateMenuItem(activeTab, modal.item.id, {
+              updateMenuItem(finalCategory, modal.item.id, {
                 ...form,
+                category: finalCategory,
                 price: `AED${(parseFloat(String(form.price).replace(/[^0-9.-]/g, '')) || 0).toFixed(2)}`,
                 numPrice: parseFloat(String(form.price).replace(/[^0-9.-]/g, '')) || 0
               });
             } else {
-              const newItem = await addMenuItem(activeTab, {
+              const newItem = await addMenuItem(finalCategory, {
                 ...form,
+                category: finalCategory,
                 price: `AED${(parseFloat(String(form.price).replace(/[^0-9.-]/g, '')) || 0).toFixed(2)}`,
                 numPrice: parseFloat(String(form.price).replace(/[^0-9.-]/g, '')) || 0
               });
@@ -575,7 +599,6 @@ export default function AdminMenuItems() {
           onClose={() => setModal(null)}
         />
       )}
-
       {/* Variations Modal */}
       {variationModal && (
          <VariationsManagerModal item={variationModal} onClose={() => setVariationModal(null)} />
