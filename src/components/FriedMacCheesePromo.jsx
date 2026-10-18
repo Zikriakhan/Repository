@@ -16,16 +16,16 @@ const FriedMacCheesePromo = () => {
 
   const handleQuickOrder = (e) => {
     e.stopPropagation();
-    const itemName = promo.title || "Aesthetic Penne Pasta";
-    const itemPrice = promo.price ? `AED${parseFloat(promo.price).toFixed(2)}` : "AED16.50";
-    const itemNumPrice = promo.price ? parseFloat(promo.price) : 16.50;
+    const itemName = promo.title || "Aesthetic Penne & Pasta";
+    const itemPrice = promo.price ? `AED ${parseFloat(promo.price).toFixed(2)}` : "AED 34.00";
+    const itemNumPrice = promo.price ? parseFloat(promo.price) : 34;
 
     addToCart({
       name: itemName,
       price: itemPrice,
       numPrice: itemNumPrice,
       img: promo.imageUrl || "https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?q=80&w=600&auto=format&fit=crop",
-      desc: promo.description || "Fresh penne pasta tossed in a creamy aesthetic tomato basil sauce, garnished with parmesan and fresh herbs."
+      desc: promo.description || "Fresh penne tossed in a creamy tomato-basil sauce, garnished with parmesan and fresh herbs — a beautiful, deceptively simple Italian classic."
     });
     alert(`🎉 ${itemName} added to your bag!`);
   };
@@ -40,7 +40,7 @@ const FriedMacCheesePromo = () => {
           <div className="lg:col-span-6 relative min-h-[350px] sm:min-h-[450px] lg:min-h-[550px] overflow-hidden bg-gray-100 group order-2 lg:order-1">
             <img
               src={promo.imageUrl || "https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?q=80&w=600&auto=format&fit=crop"}
-              alt={promo.title || "Aesthetic Penne Pasta"}
+              alt={promo.title || "Aesthetic Penne & Pasta"}
               className="w-full h-full object-cover object-center transform group-hover:scale-105 transition-transform duration-700"
             />
 
@@ -49,7 +49,7 @@ const FriedMacCheesePromo = () => {
             {/* Floating Quality Badge */}
             <div className="absolute top-6 left-6 z-20 bg-white/95 backdrop-blur-md text-[var(--theme-primary)] px-4 py-2 rounded-xl shadow-lg border border-gray-100 flex items-center gap-2 text-xs font-bold tracking-wider uppercase">
               <Sparkles size={14} className="text-[var(--theme-accent)]" />
-              <span>Signature Appetizer</span>
+              <span>Timeless Classic • Since 1999</span>
             </div>
           </div>
 
@@ -61,7 +61,7 @@ const FriedMacCheesePromo = () => {
                 {promo.subtitle ? <span>{promo.subtitle}</span> : <>
                   <span>TIMELESS CLASSIC</span>
                   <span>•</span>
-                  <span>SINCE 1978</span>
+                  <span>SINCE 1999</span>
                 </>}
               </div>
 
@@ -71,22 +71,22 @@ const FriedMacCheesePromo = () => {
               </h2>
 
               <p className="text-gray-600 text-base sm:text-lg font-normal leading-relaxed mb-8">
-                {promo.description || 'Fresh penne pasta tossed in a creamy aesthetic tomato basil sauce, garnished with parmesan and fresh herbs. A beautiful and delicious Italian classic!'}
+                {promo.description || 'Fresh penne tossed in a creamy tomato-basil sauce, garnished with parmesan and fresh herbs — a beautiful, deceptively simple Italian classic.'}
               </p>
 
               {/* Bullet Points */}
               <div className="space-y-3 mb-10">
                 <div className="flex items-center gap-3 text-sm font-semibold text-gray-700">
                   <CheckCircle2 size={18} className="text-emerald-600 shrink-0" />
-                  <span>Creamy Tomato Basil Sauce</span>
+                  <span>Creamy tomato basil sauce, simmered daily</span>
                 </div>
                 <div className="flex items-center gap-3 text-sm font-semibold text-gray-700">
                   <CheckCircle2 size={18} className="text-emerald-600 shrink-0" />
-                  <span>Freshly Grated Parmesan</span>
+                  <span>Freshly grated parmesan</span>
                 </div>
                 <div className="flex items-center gap-3 text-sm font-semibold text-gray-700">
                   <CheckCircle2 size={18} className="text-emerald-600 shrink-0" />
-                  <span>Aesthetic Presentation</span>
+                  <span>Plated for an elegant, restaurant-grade finish</span>
                 </div>
               </div>
             </div>
@@ -98,7 +98,7 @@ const FriedMacCheesePromo = () => {
                 className="flex-1 bg-[var(--theme-accent)] hover:opacity-90 text-white px-8 py-4 rounded-xl font-bold tracking-[0.15em] uppercase text-xs sm:text-sm shadow-lg hover:shadow-xl transition-all transform active:scale-95 flex items-center justify-center gap-3"
               >
                 <Utensils size={18} />
-                <span>{promo.buttonText || `Order Now ($${promo.price || '16.50'})`}</span>
+                <span>{promo.buttonText || `Order Now — AED. 50`}</span>
               </button>
 
               <button

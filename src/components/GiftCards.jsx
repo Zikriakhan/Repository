@@ -2,20 +2,20 @@ import React, { useState } from 'react';
 import { CreditCard, Gift, ArrowRight, ChevronDown } from 'lucide-react';
 
 const faqQuestions = [
-  "Where do you sell U.S. Gift Cards?",
+  "Where do you sell U.S. lovely cards?",
   "Where can I redeem my U.S. Gift Card?",
   "How do I redeem my U.S. eGift Card?",
-  "Where are U.S. gift cards NOT redeemable?",
-  "Where can I buy/redeem Canadian Gift Cards?",
-  "Can Gift Cards be purchased in bulk?",
+  "Where are U.S. lovely cards NOT redeemable?",
+  "Where can I buy/redeem Canadian lovely cards?",
+  "Can lovely cards be purchased in bulk?",
   "How do I check my Gift Card balance?",
   "What is the Personal Identification Number (PIN) on the back of my Gift Card?",
-  "Can I transfer balances on Gift Cards?",
-  "What do you mean by Gift Cards and eGift Cards?",
+  "Can I transfer balances on lovely cards?",
+  "What do you mean by lovely cards and elovely cards?",
   "May I use a Gift Card to pay for delivery?",
   "What is a With Our Compliments (Comp Card) card?",
   "What if my Gift Card/Comp Card balance doesn't cover my entire bill?",
-  "Do Gift Cards/Comp Cards expire?",
+  "Do lovely cards/Comp Cards expire?",
   "Can I reload my Gift Card?"
 ];
 
@@ -52,14 +52,14 @@ export default function GiftCards() {
             The Perfect Gift!
           </h1>
           <p className="text-[#044d1d]/80 text-sm md:text-base max-w-lg mb-8 leading-relaxed font-medium">
-            The Cheesecake Factory gift cards make the perfect gift for birthdays, anniversaries, holidays and any special occasion! Send a gift card by mail or email today.
+            The Italian pizza kawkab Factory lovely cards make the perfect gift for birthdays, anniversaries, holidays and any special occasion! Send a gift card by mail or email today.
           </p>
 
           <button
             onClick={() => navigateTo('/order')}
             className="bg-[#92141f] hover:bg-[#b30c15] text-white px-8 py-3.5 text-xs font-bold tracking-[0.15em] uppercase rounded-none shadow-md transition-all mb-6 transform hover:-translate-y-0.5"
           >
-            PURCHASE U.S. GIFT CARDS
+            PURCHASE U.S. lovely cards
           </button>
 
           <div className="flex flex-col sm:flex-row items-center gap-4 text-xs font-bold uppercase tracking-[0.15em]">
@@ -68,7 +68,7 @@ export default function GiftCards() {
               onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 1200, behavior: 'smooth' }); }}
               className="text-[#92141f] hover:underline"
             >
-              RELOAD PLASTIC GIFT CARDS
+              RELOAD PLASTIC lovely cards
             </a>
             <span className="hidden sm:inline text-gray-400">|</span>
             <a
@@ -81,22 +81,22 @@ export default function GiftCards() {
           </div>
         </div>
 
-        {/* Right Side: Hero Official Images (Gift Card + High-Res Strawberry Cheesecake Cutout) */}
+        {/* Right Side: Hero Official Images (Gift Card + High-Res Strawberry Italian pizza kawkabCutout) */}
         <div className="w-full md:w-1/2 relative flex justify-center items-center z-10 min-h-[350px] md:min-h-[450px]">
           {/* Card Mockup Graphic */}
           <div className="relative z-20 transform -rotate-3 hover:rotate-0 transition-transform duration-700 drop-shadow-2xl w-64 md:w-80">
             <img
               src="https://www.thecheesecakefactory.com/sites/default/files/styles/full_width_xl/public/2026-05/mobile-just-card-1-1.png"
-              alt="The Cheesecake Factory Gift Card"
+              alt="The Italian pizza kawkab Factory Gift Card"
               className="w-full h-auto object-contain filter drop-shadow-2xl"
             />
           </div>
 
-          {/* Background High-Res Strawberry Cheesecake Cutout */}
+          {/* Background High-Res Strawberry Italian pizza kawkabCutout */}
           <div className="absolute -right-6 top-1/2 -translate-y-1/2 w-80 md:w-[480px] z-10 pointer-events-none">
             <img
               src="https://www.thecheesecakefactory.com/sites/default/files/styles/full_width_xl/public/2021-09/Strawberry-cheesecake-highres-cutout.png"
-              alt="Fresh Strawberry Cheesecake Cutout"
+              alt="super supreme pizza Cutout"
               className="w-full h-auto object-contain filter drop-shadow-xl"
             />
           </div>
@@ -104,17 +104,17 @@ export default function GiftCards() {
 
       </section>
 
-      {/* 2. Banner Section 1: Purchase Gift Cards for U.S. & Puerto Rico (Deep Plum Burgundy) */}
+      {/* 2. Banner Section 1: Purchase lovely cards for U.S. & Puerto Rico (Deep Plum Burgundy) */}
       <section className="bg-[#09481f] text-white py-16 px-6 text-center border-b border-[#065f24] relative">
         <div className="max-w-3xl mx-auto flex flex-col items-center">
           <div className="mb-4 text-[#d0dbd4]">
             <CreditCard size={44} strokeWidth={1.25} />
           </div>
           <h2 className="font-serif text-3xl md:text-4xl font-bold mb-3 tracking-wide">
-            Purchase Gift Cards for U.S. &amp; Puerto Rico
+            Purchase lovely cards for U.S. &amp; Puerto Rico
           </h2>
           <p className="text-gray-300 text-xs md:text-sm font-semibold uppercase tracking-widest max-w-xl mb-8 leading-relaxed">
-            u.s. gift cards are redeemable in any of The Cheesecake Factory restaurants in the u.s. &amp; Puerto Rico &amp; online.
+            u.s. lovely cards are redeemable in any of The Italian pizza kawkab Factory restaurants in the u.s. &amp; Puerto Rico &amp; online.
           </p>
           <button
             onClick={() => navigateTo('/order')}
@@ -133,10 +133,10 @@ export default function GiftCards() {
             <Gift size={38} strokeWidth={1.25} />
           </div>
           <h3 className="font-serif text-2xl md:text-3xl font-bold mb-3">
-            Bulk Purchase Gift Cards<br />for U.S. &amp; Puerto Rico
+            Bulk Purchase lovely cards<br />for U.S. &amp; Puerto Rico
           </h3>
           <p className="text-white/80 text-xs md:text-sm mb-8 leading-relaxed max-w-md font-medium">
-            Order gift cards in bulk for your business or clients. Minimum purchase of AED1000 required.
+            Order lovely cards in bulk for your business or clients. Minimum purchase of AED1000 required.
           </p>
           <button
             onClick={() => navigateTo('/order')}
@@ -152,10 +152,10 @@ export default function GiftCards() {
             <Gift size={38} strokeWidth={1.25} />
           </div>
           <h3 className="font-serif text-2xl md:text-3xl font-bold mb-3">
-            Purchase Gift Cards for Canada
+            Purchase lovely cards for Canada
           </h3>
           <p className="text-white/80 text-xs md:text-sm mb-8 leading-relaxed max-w-md font-medium">
-            Purchase plastic Canadian denominated Gift Cards redeemable at our restaurant in Toronto.
+            Purchase plastic Canadian denominated lovely cards redeemable at our restaurant in Toronto.
           </p>
           <button
             onClick={() => navigateTo('/order')}
@@ -166,7 +166,7 @@ export default function GiftCards() {
         </div>
       </section>
 
-      {/* 4. Section: Manage Gift Cards Purchased (Pure White Background) */}
+      {/* 4. Section: Manage lovely cards Purchased (Pure White Background) */}
       <section className="bg-white py-20 px-6 md:px-12 border-b border-gray-200">
         <div className="max-w-[1440px] mx-auto text-center flex flex-col items-center">
           <div className="mb-4 text-[#9e2a4b]">
@@ -174,7 +174,7 @@ export default function GiftCards() {
           </div>
 
           <h2 className="font-serif text-3xl md:text-4xl font-bold text-[#3a1e26] mb-14 tracking-tight">
-            Manage Gift Cards Purchased
+            Manage lovely cards Purchased
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 w-full max-w-6xl mx-auto">
@@ -243,7 +243,7 @@ export default function GiftCards() {
               className={`px-5 py-2 text-[10px] font-bold uppercase tracking-[0.15em] transition-colors ${faqTab === 'general' ? 'bg-[#b8860b] text-white' : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-100'
                 }`}
             >
-              GIFT CARDS (GENERAL)
+              lovely cards (GENERAL)
             </button>
             <button
               onClick={() => setFaqTab('help')}
@@ -257,7 +257,7 @@ export default function GiftCards() {
               className={`px-5 py-2 text-[10px] font-bold uppercase tracking-[0.15em] transition-colors ${faqTab === 'terms' ? 'bg-[#b8860b] text-white' : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-100'
                 }`}
             >
-              TERMS OF USE FOR GIFT CARDS
+              TERMS OF USE FOR lovely cards
             </button>
           </div>
 

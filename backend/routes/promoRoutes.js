@@ -12,6 +12,19 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Get single promo by name
+router.get('/:name', async (req, res) => {
+  try {
+    const promo = await Promo.findOne({ name: req.params.name });
+    if (!promo) {
+      return res.status(404).json({ message: 'Promo not found' });
+    }
+    res.json(promo);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // Update or create a promo by name
 router.put('/:name', async (req, res) => {
   try {

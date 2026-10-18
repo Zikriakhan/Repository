@@ -13,7 +13,7 @@ const ReservationsPromo = () => {
             Reservations
           </h2>
           <p className="text-white text-lg mb-8 font-medium leading-relaxed">
-            Only Cheesecake Rewards&reg; members can make online reservations - easy, convenient, and available for parties up to six. Book up to 30 days in advance.
+            Only Italian pizza kawkabRewards&reg; members can make online reservations - easy, convenient, and available for parties up to six. Book up to 30 days in advance.
           </p>
           <button className="bg-white text-[#92141f] font-bold tracking-widest uppercase px-8 py-3 hover:bg-gray-100 transition-colors shadow-md">
             Save Me A Seat

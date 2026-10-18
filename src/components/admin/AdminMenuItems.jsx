@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useAdminData, API_URL } from '../../context/AdminDataContext';
-
-
+import { useAdminData, API_URL, sortAndDeduplicateCategories } from '../../context/AdminDataContext';
+import { uploadToCloudinaryDirect } from '../../utils/cloudinaryUpload';
 
 const EMPTY_ITEM = { name: '', price: '', calories: '', rating: 4.5, desc: '', image: '', active: true };
 const PRESET_SIZES = ['Small', 'Medium', 'Large', 'Extra Large', 'Regular', 'Half Portion', 'Full Portion', 'Family Size'];
@@ -9,7 +8,7 @@ const PRESET_SIZES = ['Small', 'Medium', 'Large', 'Extra Large', 'Regular', 'Hal
 function ItemFormModal({ category, initial, onSave, onClose }) {
   const { data, getVariations, addVariation, deleteVariation } = useAdminData();
   const [form, setForm] = useState(initial || EMPTY_ITEM);
-  const [targetCategory, setTargetCategory] = useState(initial?.category || category || 'bites');
+  const [targetCategory, setTargetCategory] = useState(initial?.category || category || 'pizzas');
   const [uploading, setUploading] = useState(false);
   const [variationsList, setVariationsList] = useState([]);
   const [loadingVars, setLoadingVars] = useState(false);
@@ -62,21 +61,31 @@ function ItemFormModal({ category, initial, onSave, onClose }) {
     const file = e.target.files[0];
     if (!file) return;
 
-    const formData = new FormData();
-    formData.append('image', file);
-
     setUploading(true);
     try {
-      const res = await fetch(`${API_URL}/upload`, {
-        method: 'POST',
-        body: formData,
-      });
-      const data = await res.json();
-      if (data.url) {
-        set('image', data.url);
+      // Direct Cloudinary upload
+      const result = await uploadToCloudinaryDirect(file, { isVideo: false });
+      if (result.secure_url) {
+        set('image', result.secure_url);
+        return;
       }
     } catch (err) {
-      console.error('Image upload failed:', err);
+      console.warn('Direct image upload failed, trying fallback API:', err);
+      try {
+        const formData = new FormData();
+        formData.append('image', file);
+        const res = await fetch(`${API_URL}/upload`, {
+          method: 'POST',
+          body: formData,
+        });
+        const data = await res.json();
+        if (data.url) {
+          set('image', data.url);
+          return;
+        }
+      } catch (fallbackErr) {
+        console.error('All image upload methods failed:', fallbackErr);
+      }
     } finally {
       setUploading(false);
     }
@@ -98,7 +107,7 @@ function ItemFormModal({ category, initial, onSave, onClose }) {
             onChange={e => setTargetCategory(e.target.value)}
             style={{ width: '100%', padding: '10px 14px', border: '1.5px solid #e5e7eb', borderRadius: '8px', fontSize: '14px', boxSizing: 'border-box', outline: 'none', background: '#fff', cursor: 'pointer' }}
           >
-            {(data.categories || []).map(c => (
+            {sortAndDeduplicateCategories(data.categories || []).map(c => (
               <option key={c.id || c.slug} value={c.slug}>
                 {c.icon || '🍽️'} {c.name}
               </option>
@@ -421,7 +430,7 @@ function VariationsManagerModal({ item, onClose }) {
 
 export default function AdminMenuItems() {
   const { data, addMenuItem, updateMenuItem, deleteMenuItem, addVariation } = useAdminData();
-  const [activeTab, setActiveTab] = useState('bites');
+  const [activeTab, setActiveTab] = useState('pizzas');
   const [modal, setModal] = useState(null); // null | { mode: 'add' | 'edit', item?: ... }
   const [variationModal, setVariationModal] = useState(null); // null | item
   const [search, setSearch] = useState('');
@@ -444,6 +453,8 @@ export default function AdminMenuItems() {
     boxShadow: activeTab === tab ? '0 4px 12px rgba(215,19,94,0.25)' : 'none'
   });
 
+  const categoriesList = sortAndDeduplicateCategories(data.categories || []);
+
   return (
     <div>
       {/* Header */}
@@ -462,7 +473,7 @@ export default function AdminMenuItems() {
 
       {/* Category Tabs */}
       <div style={{ display: 'flex', gap: '10px', marginBottom: '24px', flexWrap: 'wrap' }}>
-        {(data.categories || []).map(cat => {
+        {categoriesList.map(cat => {
           const slug = cat.slug;
           const count = (data.menuItems[slug] || []).length;
           return (

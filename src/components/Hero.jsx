@@ -1,10 +1,106 @@
-import React from 'react';
-import { ArrowRight, Award, UtensilsCrossed, Star } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { ArrowRight, Award, UtensilsCrossed, Star, Play, Pause, Volume2, VolumeX } from 'lucide-react';
 import { useAdminData } from '../context/AdminDataContext';
+
+const HERO_PLAYLIST = [
+  {
+    id: 1,
+    label: 'Clip 1',
+    name: 'Artisan Wood-Fired Oven',
+    src: 'https://res.cloudinary.com/um3irlrh/video/upload/v1792044052/Screen_Recording_10-15-2026_10-37-29_AM_yijxxi_audbr6.mp4'
+  },
+];
 
 const Hero = () => {
   const { data } = useAdminData();
   const promo = data?.promos?.find(p => p.name === 'Hero') || {};
+  const videoRef = useRef(null);
+  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [isMuted, setIsMuted] = useState(true);
+
+  // Derive active playlist from API promo or fallback
+  let activePlaylist = [];
+
+  if (Array.isArray(promo.playlist) && promo.playlist.length > 0) {
+    const validClips = promo.playlist.filter(item => item && item.src);
+    if (validClips.length > 0) {
+      activePlaylist = validClips;
+    }
+  }
+
+  // If promo has videoUrl and it's not yet in activePlaylist, prioritize it
+  if (promo.videoUrl) {
+    if (activePlaylist.length === 0) {
+      activePlaylist = [{ id: 1, label: 'Hero Video', name: promo.title || 'Artisan Scene', src: promo.videoUrl }];
+    } else if (!activePlaylist.some(clip => clip.src === promo.videoUrl)) {
+      activePlaylist = [
+        { id: 1, label: 'Clip 1', name: promo.title || 'Main Video', src: promo.videoUrl },
+        ...activePlaylist
+      ];
+    }
+  }
+
+  if (activePlaylist.length === 0) {
+    activePlaylist = HERO_PLAYLIST;
+  }
+
+  const currentItem = activePlaylist[currentVideoIndex % activePlaylist.length] || activePlaylist[0];
+  const currentVideoSrc = currentItem?.src || promo.videoUrl || HERO_PLAYLIST[0].src;
+
+  // Ensure autoplay and loop functionality work seamlessly across all browsers
+  useEffect(() => {
+    const video = videoRef.current;
+    if (video && currentVideoSrc) {
+      video.muted = isMuted;
+      video.defaultMuted = isMuted;
+      try {
+        video.load();
+      } catch (e) { }
+
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => setIsPlaying(true))
+          .catch((err) => {
+            console.log('Autoplay handled:', err);
+            // If browser autoplay policy requires mute, enforce mute and play
+            if (video) {
+              video.muted = true;
+              setIsMuted(true);
+              video.play().then(() => setIsPlaying(true)).catch(() => { });
+            }
+          });
+      }
+    }
+  }, [currentVideoSrc, isMuted]);
+
+  // Handle seamless video loop / sequence playback
+  const handleVideoEnded = () => {
+    if (activePlaylist.length > 1) {
+      setCurrentVideoIndex((prevIndex) => (prevIndex + 1) % activePlaylist.length);
+    } else if (videoRef.current) {
+      videoRef.current.currentTime = 0;
+      videoRef.current.play().then(() => setIsPlaying(true)).catch((err) => console.log('Loop play error:', err));
+    }
+  };
+
+  const togglePlayPause = () => {
+    if (!videoRef.current) return;
+    if (videoRef.current.paused) {
+      videoRef.current.play().then(() => setIsPlaying(true)).catch(console.error);
+    } else {
+      videoRef.current.pause();
+      setIsPlaying(false);
+    }
+  };
+
+  const toggleMute = () => {
+    if (!videoRef.current) return;
+    const nextMuted = !videoRef.current.muted;
+    videoRef.current.muted = nextMuted;
+    setIsMuted(nextMuted);
+  };
 
   const navigateTo = (e, path) => {
     e.preventDefault();
@@ -13,46 +109,68 @@ const Hero = () => {
   };
 
   return (
-    <section className="relative w-full min-h-[85vh] lg:min-h-[90vh] bg-gradient-to-br from-[var(--theme-light)] via-white to-[#f5ebd7] overflow-hidden flex items-center pt-24 pb-16 md:py-32">
+    <section id="hero" className="relative w-full min-h-[90vh] lg:min-h-[95vh] overflow-hidden flex items-center pt-28 pb-20 md:py-36 bg-black">
 
-      {/* Background Decorative Gradient Orbs */}
-      <div className="absolute top-12 left-10 w-72 h-72 bg-[var(--theme-accent)]/10 rounded-full blur-3xl pointer-events-none animate-pulse"></div>
-      <div className="absolute bottom-10 right-10 w-96 h-96 bg-[var(--theme-primary)]/10 rounded-full blur-3xl pointer-events-none"></div>
+      {/* Background Running Video with Autoplay and Seamless Loop */}
+      <div className="absolute inset-0 w-full h-full overflow-hidden z-0 pointer-events-none">
+        <video
+          ref={videoRef}
+          key={currentVideoSrc}
+          src={currentVideoSrc}
+          autoPlay
+          loop
+          muted={isMuted}
+          playsInline
+          preload="auto"
+          onPlay={() => setIsPlaying(true)}
+          onPause={() => setIsPlaying(false)}
+          onEnded={handleVideoEnded}
+          onError={(e) => console.warn('Hero video load notice for:', currentVideoSrc, e)}
+          poster={promo.imageUrl || "https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=1920&auto=format&fit=crop"}
+          className="absolute inset-0 w-full h-full object-cover scale-105 opacity-75 filter brightness-[0.85] contrast-[1.08] transition-opacity duration-1000"
+        />
 
-      <div className="max-w-[1440px] mx-auto px-6 md:px-12 w-full relative z-10">
+        {/* Ambient Dark & Warm Amber Overlay Gradients - Enhanced for Professional Navbar Visibility */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/55 to-black/35 z-10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/25 z-10" />
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[var(--theme-accent,#c69214)]/15 rounded-full blur-3xl pointer-events-none z-10" />
+      </div>
+
+      <div className="max-w-[1440px] mx-auto px-6 md:px-12 w-full relative z-20" style={{ top: "2rem" }}>
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
 
           {/* Left Column: Premium Typography & CTAs */}
           <div className="lg:col-span-7 flex flex-col items-start text-left">
 
             {/* Top Trending Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-200 shadow-sm mb-6 animate-fade-down">
-              <span className="flex h-2 w-2 rounded-full bg-[var(--theme-accent)] animate-ping" />
-              <span className="text-[11px] md:text-xs font-extrabold tracking-[0.2em] uppercase text-[var(--theme-primary)]">
-                National Cheesecake Day Special • 7/30
+            <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-lg mb-6 animate-fade-down">
+              <span className="flex h-2.5 w-2.5 rounded-full bg-amber-400 animate-ping" />
+              <span className="text-[11px] md:text-xs font-extrabold tracking-[0.25em] uppercase text-amber-300">
+                Over 26 Years of Tradition • Serving Sharjah Since 1999
               </span>
             </div>
 
             {/* Main Headline */}
-            <h1 className="font-serif text-5xl sm:text-6xl md:text-7xl xl:text-8xl font-bold text-[var(--theme-primary)] leading-[1.05] tracking-tight mb-6" dangerouslySetInnerHTML={{ __html: promo.title || `Any Slice, <br />
-              <span className="italic font-normal text-[var(--theme-accent)] relative inline-block">
-                Half Price*
-                <svg className="absolute -bottom-2 left-0 w-full h-3 text-[var(--theme-accent)]/40" viewBox="0 0 200 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <h1 className="font-serif text-5xl sm:text-6xl md:text-7xl xl:text-6xl font-bold text-white leading-[1.08] tracking-tight mb-6 drop-shadow-xl" dangerouslySetInnerHTML={{
+              __html: promo.title || `Welcome To <br />
+              <span className="italic font-normal text-amber-400 relative inline-block">
+                Italian Pizza Kawkab
+                <svg className="absolute -bottom-2 left-0 w-full h-3 text-amber-400/50" viewBox="0 0 200 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M2 9.5C50 2.5 150 2.5 198 9.5" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
                 </svg>
               </span>`}}>
             </h1>
 
             {/* Subtitle */}
-            <p className="text-gray-700 text-lg sm:text-xl md:text-2xl font-normal mb-8 max-w-xl leading-relaxed">
-              {promo.description || <>Dine In And Get Any Slice, Half Price*! Choose From Over <strong className="font-extrabold text-[var(--theme-primary)]">30 Legendary Cheesecakes</strong> and specialty scratch-made desserts.</>}
+            <p className="text-gray-200 text-lg sm:text-xl md:text-2xl font-light mb-8 max-w-xl leading-relaxed drop-shadow-md">
+              {promo.description || <>Italian Pizza Kawkab has been serving the Sharjah community since 1999, building a legacy of great taste, wood-fired authenticity, and unforgettable memories for more than 26 years.</>}
             </p>
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full sm:w-auto mb-12">
               <button
                 onClick={(e) => navigateTo(e, '/BrowseMenu')}
-                className="bg-[var(--theme-accent)] hover:opacity-90 text-white px-8 py-4 rounded-xl font-bold tracking-[0.15em] uppercase text-xs md:text-sm shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all flex items-center justify-center gap-3 group"
+                className="bg-[var(--theme-accent,#c69214)] hover:bg-amber-500 text-white font-serif px-8 py-4 rounded-xl font-bold tracking-[0.15em] uppercase text-xs md:text-sm shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all flex items-center justify-center gap-3 group cursor-pointer"
               >
                 <span>Explore Over 30 Flavors</span>
                 <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
@@ -60,102 +178,95 @@ const Hero = () => {
 
               <button
                 onClick={(e) => navigateTo(e, '/order')}
-                className="bg-white hover:bg-gray-50 text-[var(--theme-primary)] border-2 border-[var(--theme-primary)] px-8 py-4 rounded-xl font-bold tracking-[0.15em] uppercase text-xs md:text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                className="bg-white/10 backdrop-blur-md hover:bg-white/20 text-white border-2 border-white/40 px-8 py-4 rounded-xl font-bold tracking-[0.15em] uppercase text-xs md:text-sm shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
-                <UtensilsCrossed size={18} className="text-[var(--theme-accent)]" />
+                <UtensilsCrossed size={18} className="text-amber-400" />
                 <span>Order Online Now</span>
               </button>
             </div>
 
             {/* Key Feature Stats Bar */}
-            <div className="grid grid-cols-3 gap-4 md:gap-8 pt-6 border-t border-gray-200/80 w-full max-w-lg">
+            <div className="grid grid-cols-3 gap-4 md:gap-8 pt-6 border-t border-white/20 w-full max-w-lg">
               <div>
-                <div className="font-serif text-2xl md:text-3xl font-extrabold text-[var(--theme-primary)]">30+</div>
-                <div className="text-[10px] md:text-xs font-bold tracking-wider uppercase text-gray-500 mt-0.5">Legendary Flavors</div>
+                <div className="font-serif text-2xl md:text-3xl font-extrabold text-white">30+</div>
+                <div className="text-[10px] md:text-xs font-bold tracking-wider uppercase text-gray-300 mt-0.5">Legendary Flavors</div>
               </div>
-              <div className="border-l border-gray-200 pl-4 md:pl-8">
-                <div className="font-serif text-2xl md:text-3xl font-extrabold text-[var(--theme-primary)]">250+</div>
-                <div className="text-[10px] md:text-xs font-bold tracking-wider uppercase text-gray-500 mt-0.5">Scratch Dishes</div>
+              <div className="border-l border-white/20 pl-4 md:pl-8">
+                <div className="font-serif text-2xl md:text-3xl font-extrabold text-white">450°C</div>
+                <div className="text-[10px] md:text-xs font-bold tracking-wider uppercase text-gray-300 mt-0.5">Wood-Fired Bake</div>
               </div>
-              <div className="border-l border-gray-200 pl-4 md:pl-8">
-                <div className="font-serif text-2xl md:text-3xl font-extrabold text-[var(--theme-accent)]">4.9★</div>
-                <div className="text-[10px] md:text-xs font-bold tracking-wider uppercase text-gray-500 mt-0.5">Guest Favorite</div>
+              <div className="border-l border-white/20 pl-4 md:pl-8">
+                <div className="font-serif text-2xl md:text-3xl font-extrabold text-amber-400">4.9★</div>
+                <div className="text-[10px] md:text-xs font-bold tracking-wider uppercase text-gray-300 mt-0.5">Guest Favorite</div>
               </div>
             </div>
 
             {/* Disclaimer */}
             <p className="text-[11px] text-gray-400 mt-8 max-w-lg leading-normal italic">
-              *Offer valid July 30, 2026 for dine-in guests only. One slice of cheesecake per guest. Must be present. Available at participating restaurants across the U.S.A.
+              Authentic Wood-Fired Crust &amp; Fresh Mozzarella • Dine-in &amp; Online Delivery in Sharjah.
             </p>
           </div>
 
-          {/* Right Column: Dynamic Visual Showcase Card */}
-          <div className="lg:col-span-5 relative mt-8 lg:mt-0">
-            <div className="relative mx-auto max-w-md lg:max-w-none">
-
-              {/* Main Glowing Frame */}
-              <div className="relative z-10 rounded-3xl overflow-hidden shadow-2xl border-4 border-white bg-white group transform hover:scale-[1.02] transition-transform duration-500">
-                <img
-                  src={promo.imageUrl || "https://i.pinimg.com/1200x/03/4e/90/034e90d4c5772884ac25bd668599f50e.jpg"}
-                  alt="Legendary Strawberry Cheesecake Slice"
-                  className="w-full h-[380px] sm:h-[450px] lg:h-[520px] object-cover object-center group-hover:scale-105 transition-transform duration-700"
-                />
-
-                {/* Overlay Gradient on Image */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-6 md:p-8 text-white">
-                  {promo.subtitle && (
-                    <div className="inline-block bg-[var(--theme-accent)] text-white text-[10px] font-extrabold tracking-[0.2em] uppercase px-3 py-1 rounded-sm w-max mb-2 shadow-md">
-                      {promo.subtitle}
-                    </div>
-                  )}
-                  {!promo.subtitle && (
-                    <div className="inline-block bg-[var(--theme-accent)] text-white text-[10px] font-extrabold tracking-[0.2em] uppercase px-3 py-1 rounded-sm w-max mb-2 shadow-md">
-                      MOST POPULAR SLICE
-                    </div>
-                  )}
-                  <h3 className="font-serif text-2xl sm:text-3xl font-bold leading-tight">
-                    Fresh Strawberry Cheesecake
-                  </h3>
-                  <p className="text-xs sm:text-sm text-gray-200 mt-1 font-medium">
-                    The original legendary cheesecake topped with glazed fresh strawberries.
-                  </p>
-                </div>
-              </div>
-
-              {/* Floating Glassmorphism Review Badge */}
-              <div className="absolute -bottom-6 -left-6 sm:-left-10 z-20 bg-white/95 backdrop-blur-md p-4 sm:p-5 rounded-2xl shadow-2xl border border-gray-100 flex items-center gap-4 max-w-[260px] sm:max-w-[300px] animate-bounce-subtle">
-                <div className="w-12 h-12 rounded-full bg-[#fdfaf5] flex items-center justify-center text-[var(--theme-accent)] shrink-0 shadow-inner">
-                  <Star size={24} fill="currentColor" />
-                </div>
-                <div>
-                  <div className="flex items-center text-amber-500 text-xs mb-0.5">
-                    ★★★★★
-                  </div>
-                  <div className="text-xs font-extrabold text-[var(--theme-primary)]">
-                    &ldquo;Best slice in America!&rdquo;
-                  </div>
-                  <div className="text-[10px] text-gray-500 font-semibold">
-                    Over 40 Years of Tradition
-                  </div>
-                </div>
-              </div>
-
-              {/* Floating Quality Seal */}
-              <div className="absolute -top-6 -right-6 sm:-right-8 z-20 bg-[var(--theme-primary)] text-white p-4 rounded-2xl shadow-2xl border-2 border-white flex flex-col items-center justify-center w-24 h-24 sm:w-28 sm:h-28 text-center transform rotate-6 hover:rotate-0 transition-transform">
-                <Award size={26} className="text-[var(--theme-accent)] mb-1" />
-                <span className="text-[9px] font-extrabold tracking-wider uppercase leading-none">
-                  Scratch Made
-                </span>
-                <span className="text-[11px] font-serif font-bold text-amber-300 mt-0.5">
-                  Daily
-                </span>
-              </div>
-
-            </div>
-          </div>
+          {/* Right Column: Live Ambient Kitchen & Crust Showcase Badge */}
 
         </div>
       </div>
+
+      {/* Interactive Background Video Control Bar (Auto-Play & Loop Controls) */}
+      <div className="absolute bottom-6 right-6 z-30 flex items-center gap-2 bg-black/60 backdrop-blur-md border border-white/15 px-3 py-2 rounded-full shadow-2xl transition-all duration-300 hover:bg-black/80">
+        <button
+          type="button"
+          onClick={togglePlayPause}
+          className="w-8 h-8 rounded-full bg-white/10 hover:bg-amber-400 hover:text-black text-white flex items-center justify-center transition-colors cursor-pointer"
+          title={isPlaying ? "Pause Video" : "Play Video"}
+          aria-label={isPlaying ? "Pause Video" : "Play Video"}
+        >
+          {isPlaying ? <Pause size={15} /> : <Play size={15} className="ml-0.5" />}
+        </button>
+
+        <button
+          type="button"
+          onClick={toggleMute}
+          className="w-8 h-8 rounded-full bg-white/10 hover:bg-amber-400 hover:text-black text-white flex items-center justify-center transition-colors cursor-pointer"
+          title={isMuted ? "Unmute Audio" : "Mute Audio"}
+          aria-label={isMuted ? "Unmute Audio" : "Mute Audio"}
+        >
+          {isMuted ? <VolumeX size={15} /> : <Volume2 size={15} />}
+        </button>
+
+        {/* Live Auto-Loop Status Indicator */}
+        <div className="flex items-center gap-1.5 pl-1.5 pr-2 border-l border-white/20 select-none">
+          <span className={`w-2 h-2 rounded-full ${isPlaying ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
+          <span className="text-[10px] font-bold tracking-widest uppercase text-gray-300 hidden sm:inline">
+            {isPlaying ? 'Auto-Looping' : 'Paused'}
+          </span>
+        </div>
+
+        {/* Multi-Clip Playlist Switcher (if more than 1 clip) */}
+        {activePlaylist.length > 1 && (
+          <div className="flex items-center gap-1 pl-2 border-l border-white/20">
+            {activePlaylist.map((clip, index) => {
+              const isActive = (currentVideoIndex % activePlaylist.length) === index;
+              return (
+                <button
+                  key={clip.id || index}
+                  type="button"
+                  onClick={() => setCurrentVideoIndex(index)}
+                  className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full transition-all cursor-pointer ${
+                    isActive
+                      ? 'bg-amber-400 text-black shadow-md scale-105'
+                      : 'bg-white/10 hover:bg-white/25 text-gray-300'
+                  }`}
+                  title={clip.name || clip.label || `Clip ${index + 1}`}
+                >
+                  {clip.label || `Clip ${index + 1}`}
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
     </section>
   );
 };

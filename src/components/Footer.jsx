@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import logoImg from '../assets/footer-logo.png';
+
 
 const Footer = () => {
   const [email, setEmail] = useState('');
@@ -22,12 +24,12 @@ const Footer = () => {
 
           {/* ── Column 1: Brand ── */}
           <div className="flex flex-col gap-6">
-            {/* Logo card — white bg ensures max contrast */}
-            <div className="inline-flex w-fit bg-white px-5 py-3 rounded-lg shadow-lg">
+            {/* Brand Logo */}
+            <div className="inline-flex w-fit  overflow-hidden shadow-2xl transition-transform duration-300 hover:scale-105 ">
               <img
-                src="/logo.png"
-                alt="The Cheesecake Factory"
-                className="h-14 w-auto object-contain"
+                src={logoImg}
+                alt="Italian Pizza Kawkab Logo"
+                className="h-34 md:h-34 w-auto object-contain rounded-2xl"
               />
             </div>
 
@@ -102,8 +104,8 @@ const Footer = () => {
                 {[
                   { label: 'Browse Menu', href: '/BrowseMenu' },
                   { label: 'Locations', href: '/locations' },
-                  { label: 'Gift Cards', href: '/gift-cards' },
-                  { label: 'Cheesecake Rewards®', href: '/rewards' },
+                  { label: 'lovely cards', href: '/gift-cards' },
+                  { label: 'Italian pizza kawkabRewards®', href: '/rewards' },
                   { label: 'Catering', href: '/catering' },
                 ].map(({ label, href }) => (
                   <li key={label}>
@@ -142,7 +144,7 @@ const Footer = () => {
                 </span>
                 <address className="not-italic text-sm leading-relaxed" style={{ color: '#b8ccbe' }}>
                   <span className="block mb-1"><strong>Located in:</strong> Crescent Tower</span>
-                  buhaira corniche - Al Majaz 3 - Al Majaz<br />
+                  Buhaira corniche - Al Majaz 3 - Al Majaz<br />
                   Sharjah - United Arab Emirates
                 </address>
               </li>
@@ -203,8 +205,8 @@ const Footer = () => {
                   </svg>
                 </span>
                 <span className="text-sm leading-relaxed" style={{ color: '#b8ccbe' }}>
-                  <strong>Hours:</strong> Open · Closes 12 am<br />
-                  <strong>Price per person:</strong> $ 1–50<br />
+                  <strong>Hours:</strong> Open ·11AM    Closes 4 AM <br />
+                  <strong>Price per person:</strong> AED 1–50<br />
                   <span className="opacity-70 text-xs mt-1 block">Reported by 100 people</span>
                 </span>
               </li>
@@ -286,7 +288,7 @@ const Footer = () => {
                   onMouseEnter={e => e.currentTarget.style.opacity = '0.88'}
                   onMouseLeave={e => e.currentTarget.style.opacity = '1'}
                 >
-                  Join Cheesecake Rewards®
+                  Join Italian pizza kawkabRewards®
                 </button>
                 <p className="text-xs" style={{ color: 'rgba(184,204,190,0.6)' }}>
                   No spam. Unsubscribe anytime.
@@ -298,9 +300,22 @@ const Footer = () => {
 
         {/* ── Bottom Bar ─────────────────────────────────────── */}
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 py-6">
-          <p className="text-xs order-2 sm:order-1" style={{ color: 'rgba(184,204,190,0.55)' }}>
-            © 2026 The Cheesecake Factory Incorporated. All Rights Reserved.
-          </p>
+          <div className="text-xs order-2 sm:order-1 flex flex-wrap items-center gap-2" style={{ color: 'rgba(184,204,190,0.55)' }}>
+            <span>© 2026 The Italian pizza kawkab Factory Incorporated. All Rights Reserved.</span>
+            <span style={{ color: 'rgba(255,255,255,0.2)' }}>|</span>
+            <span>
+              Developed by{' '}
+              <a
+                href="https://muhammadzikria.me"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold underline hover:text-white transition-colors"
+                style={{ color: '#d4b896' }}
+              >
+                muhammadzikria
+              </a>
+            </span>
+          </div>
 
           <nav aria-label="Legal links" className="flex items-center gap-1 order-1 sm:order-2">
             {['Privacy Policy', 'Terms of Use', 'Accessibility'].map((item, idx, arr) => (

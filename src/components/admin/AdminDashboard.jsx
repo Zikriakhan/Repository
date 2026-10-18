@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import logoImg from '../../assets/logo.png';
 import { useAdminData } from '../../context/AdminDataContext';
 import AdminMenuItems from './AdminMenuItems';
 import AdminCategories from './AdminCategories';
@@ -269,14 +270,14 @@ export default function AdminDashboard({ currentPath, setCurrentPath, onLogout }
         <div style={{ padding: '20px 16px', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', gap: '14px', minHeight: '90px' }}>
           <div style={{ background: '#fff', padding: '6px 10px', borderRadius: '10px', flexShrink: 0, display: 'flex', alignItems: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.2)', minWidth: '48px', justifyContent: 'center' }}>
             <img
-              src="/logo.png"
-              alt="Logo"
+              src={logoImg}
+              alt="Italian Pizza Kawkab Logo"
               style={{ height: '40px', width: 'auto', maxWidth: '120px', objectFit: 'contain' }}
             />
           </div>
           {sidebarOpen && (
             <div style={{ overflow: 'hidden' }}>
-              <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.5)', letterSpacing: '1.2px', whiteSpace: 'nowrap', fontWeight: 700, textTransform: 'uppercase' }}>The Cheesecake Factory</div>
+              <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.5)', letterSpacing: '1.2px', whiteSpace: 'nowrap', fontWeight: 700, textTransform: 'uppercase' }}>The Italian pizza kawkab Factory</div>
               <div style={{ fontSize: '14px', fontWeight: 700, color: '#fff', whiteSpace: 'nowrap' }}>Admin Portal</div>
             </div>
           )}

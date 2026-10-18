@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Search, Plus, ArrowRight } from 'lucide-react';
 import { useCart } from '../context/CartContext';
-import { useAdminData } from '../context/AdminDataContext';
+import { useAdminData, DEFAULT_LASAGNA_ITEMS, CATEGORY_ORDER_PRIORITY } from '../context/AdminDataContext';
 
 export default function MenuShowcase() {
   const [activeCategory, setActiveCategory] = useState("ALL");
@@ -9,33 +9,72 @@ export default function MenuShowcase() {
   const { addToCart } = useCart();
   const [addedItem, setAddedItem] = useState(null);
 
-  const handleAddToCart = (e, item) => {
+  const handleChooseSize = (e, item, cat) => {
     e.stopPropagation();
-    
-    // Redirect to detail page if product has variations
-    if (item.hasVariations) {
-      const itemSlug = item.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-      window.history.pushState({ id: item.id || item._id, image: item.image, description: item.desc || item.description, price: item.price }, '', `/menu/all/${itemSlug}`);
-      window.dispatchEvent(new Event('popstate'));
-      return;
-    }
-
-    addToCart({
-      name: item.name,
-      price: item.price || "AED14.95",
-      numPrice: item.numPrice || 14.95,
-      img: item.image,
-      desc: item.description || item.desc
-    });
-    setAddedItem(item.name);
-    setTimeout(() => setAddedItem(null), 2000);
+    const itemSlug = item.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    window.history.pushState(
+      {
+        id: item.id || item._id,
+        name: item.name,
+        image: item.image,
+        description: item.desc || item.description,
+        price: item.price,
+        numPrice: item.numPrice
+      },
+      '',
+      `/menu/${cat || 'pizzas'}/${itemSlug}`
+    );
+    window.dispatchEvent(new Event('popstate'));
   };
 
   const { data } = useAdminData();
 
-  const activeCategoriesList = (data.categories && data.categories.length > 0)
+  const rawActiveCategoriesList = (data.categories && data.categories.length > 0)
     ? data.categories.filter(c => c.active !== false)
     : Object.keys(data.menuItems || {}).map(slug => ({ slug, name: slug.charAt(0).toUpperCase() + slug.slice(1), icon: '🍽️' }));
+
+  // Deduplicate by slug/name
+  const uniqueCategoriesMap = new Map();
+  rawActiveCategoriesList.forEach(c => {
+    const slugKey = (c.slug || c.name || '').toLowerCase();
+    if (slugKey && !uniqueCategoriesMap.has(slugKey)) {
+      uniqueCategoriesMap.set(slugKey, c);
+    }
+  });
+
+  // Always ensure Lasagna is present as a prominent category
+  if (!uniqueCategoriesMap.has('lasagna') && !uniqueCategoriesMap.has('lasagnas')) {
+    uniqueCategoriesMap.set('lasagna', {
+      id: 'cat-13',
+      _id: 'cat-13',
+      name: 'Lasagna',
+      slug: 'lasagna',
+      icon: '🥘',
+      desc: 'Traditional slow-baked Italian lasagna with rich meat sauce & cheeses',
+      itemCount: 6,
+      active: true
+    });
+  }
+
+  const getPriority = (slug) => {
+    if (slug === 'pizzas' || slug === 'pizza') return 0;
+    if (slug === 'lasagna' || slug === 'lasagnas') return 1;
+    if (slug === 'desserts' || slug === 'dessert') return 2;
+    const idx = CATEGORY_ORDER_PRIORITY.indexOf(slug);
+    return idx !== -1 ? idx : 999;
+  };
+
+  const activeCategoriesList = Array.from(uniqueCategoriesMap.values()).sort((a, b) => {
+    const slugA = (a.slug || a.name || '').toLowerCase();
+    const slugB = (b.slug || b.name || '').toLowerCase();
+    const priorityA = getPriority(slugA);
+    const priorityB = getPriority(slugB);
+
+    if (priorityA !== priorityB) {
+      return priorityA - priorityB;
+    }
+    return (a.name || '').localeCompare(b.name || '');
+  });
 
   const categoryTabs = ["ALL", ...activeCategoriesList.map(c => c.slug.toUpperCase())];
 
@@ -116,7 +155,26 @@ export default function MenuShowcase() {
         ) : (
           activeCategoriesList.map(catObj => {
             const cat = catObj.slug;
-            const categoryItems = data.menuItems[cat]?.filter(i => i.active) || [];
+            let categoryItems = data.menuItems[cat]?.filter(i => i.active) || [];
+
+            if ((cat === 'lasagna' || cat === 'lasagnas') && categoryItems.length === 0) {
+              const lasagnaFromMenu = Object.values(data.menuItems || {})
+                .flat()
+                .filter(i => (i?.name && i.name.toLowerCase().includes('lasagna')) || (i?.desc && i.desc.toLowerCase().includes('lasagna')));
+
+              if (lasagnaFromMenu.length > 0) {
+                const seenNames = new Set();
+                categoryItems = lasagnaFromMenu.filter(item => {
+                  const key = (item.name || '').toLowerCase();
+                  if (seenNames.has(key)) return false;
+                  seenNames.add(key);
+                  return true;
+                });
+              } else {
+                categoryItems = DEFAULT_LASAGNA_ITEMS;
+              }
+            }
+
             const filteredItems = filterBySearch(categoryItems);
             const isCategoryActive = activeCategory === "ALL" || activeCategory === cat.toUpperCase();
 
@@ -191,19 +249,11 @@ export default function MenuShowcase() {
                           </div>
 
                           <button
-                            onClick={(e) => handleAddToCart(e, item)}
-                            className={`w-full flex items-center justify-center gap-2 text-[10px] md:text-[11px] font-bold tracking-[0.2em] uppercase px-4 py-3 md:py-4 rounded-xl transition-all duration-300 ${addedItem === item.name
-                              ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30'
-                              : 'bg-gray-50 text-[#1a0a10] hover:bg-[#9e2a4b] hover:text-white hover:shadow-xl hover:shadow-[#9e2a4b]/20 border border-gray-100 group-hover:border-transparent'
-                              }`}
+                            onClick={(e) => handleChooseSize(e, item, cat)}
+                            className="w-full flex items-center justify-center gap-2 text-[11px] md:text-xs font-extrabold tracking-[0.16em] uppercase px-4 py-3.5 md:py-4 rounded-xl bg-gray-50 text-[var(--theme-primary,#1a0a10)] hover:bg-[var(--theme-accent,#9e2a4b)] hover:text-white hover:shadow-xl hover:shadow-[#9e2a4b]/20 border border-gray-200 hover:border-transparent transition-all duration-300 group-hover:bg-[var(--theme-accent,#9e2a4b)] group-hover:text-white"
                           >
-                            {addedItem === item.name ? (
-                              <>Added to Cart</>
-                            ) : item.hasVariations ? (
-                              <>Choose Size</>
-                            ) : (
-                              <><Plus size={14} /> Add to Order</>
-                            )}
+                            <span>Choose Size</span>
+                            <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
                           </button>
                         </div>
                       </div>

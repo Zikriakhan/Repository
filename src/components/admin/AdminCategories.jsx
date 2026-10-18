@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { useAdminData } from '../../context/AdminDataContext';
+import { useAdminData, sortAndDeduplicateCategories } from '../../context/AdminDataContext';
 
 const EMOJI_OPTIONS = ['🍢', '🥗', '🍰', '🍳', '🍝', '🥪', '🍔', '🍲', '🥟', '🥤', '🍕', '🌮', '🥩', '🍟', '🍷', '☕', '🍦', '🍩'];
+
 
 function CategoryModal({ initial, onSave, onClose }) {
   const isEdit = !!initial?.id;
@@ -139,7 +140,8 @@ export default function AdminCategories() {
   const [modal, setModal] = useState(null); // null | { mode: 'add' | 'edit', category?: obj }
   const [deleteConfirm, setDeleteConfirm] = useState(null);
 
-  const categoriesList = (data.categories || []).filter(c =>
+  const sortedCategories = sortAndDeduplicateCategories(data.categories || []);
+  const categoriesList = sortedCategories.filter(c =>
     !search ||
     c.name.toLowerCase().includes(search.toLowerCase()) ||
     c.slug.toLowerCase().includes(search.toLowerCase())

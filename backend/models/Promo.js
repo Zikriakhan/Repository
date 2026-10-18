@@ -6,9 +6,18 @@ const promoSchema = new mongoose.Schema({
   subtitle: { type: String },
   description: { type: String },
   imageUrl: { type: String },
+  videoUrl: { type: String },
+  playlist: [
+    {
+      id: { type: mongoose.Schema.Types.Mixed },
+      label: { type: String },
+      name: { type: String },
+      src: { type: String }
+    }
+  ],
   price: { type: Number },
   buttonText: { type: String },
   buttonLink: { type: String }
-}, { timestamps: true });
+}, { timestamps: true, strict: false });
 
 module.exports = mongoose.model('Promo', promoSchema);

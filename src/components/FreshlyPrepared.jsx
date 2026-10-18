@@ -22,37 +22,38 @@ const FreshlyPrepared = () => {
           <div className="lg:col-span-7 p-8 sm:p-12 md:p-16 flex flex-col justify-between">
 
             <div>
-              <div className="inline-flex items-center gap-2 bg-white text-[var(--theme-primary)] px-4 py-1.5 rounded-full text-xs font-extrabold tracking-[0.2em] uppercase mb-6 shadow-sm border border-gray-200/60">
+              <div className="inline-flex items-center gap-2 bg-white text-[var(--theme-accent)] px-4 py-1.5 rounded-full text-xs font-extrabold tracking-[0.2em] uppercase mb-6 shadow-sm border border-gray-200/60">
                 <ChefHat size={16} className="text-[var(--theme-accent)]" />
-                <span>{promo.subtitle || 'TASTE THE DIFFERENCE • OUR PHILOSOPHY'}</span>
+                <span>{promo.subtitle || 'Taste the Difference · Our Philosophy'}</span>
               </div>
 
-              <h2 className="font-serif text-[var(--theme-primary)] text-4xl sm:text-5xl md:text-6xl font-bold mb-6 leading-tight" dangerouslySetInnerHTML={{ __html: promo.title || `Freshly Prepared <br />
+              <h2 className="font-serif text-[var(--theme-primary)] text-4xl sm:text-5xl md:text-6xl font-bold mb-6 leading-tight" dangerouslySetInnerHTML={{
+                __html: promo.title || `Freshly Prepared, <br />
                 <span className="text-[var(--theme-accent)] italic font-normal">Every Day,</span> From Scratch` }}>
               </h2>
 
               <p className="text-gray-700 text-base sm:text-lg md:text-xl font-normal leading-relaxed mb-8 max-w-xl">
-                {promo.description || <>Our menu features more than <strong className="font-extrabold text-[var(--theme-primary)]">250 dishes</strong>, freshly prepared from scratch every single day. We use only the finest ingredients, local dairy, and premium meats to ensure every bite is extraordinary.</>}
+                {promo.description || <>Our menu features more than <strong className="font-extrabold text-[var(--theme-accent)]">250 dishes</strong>, prepared from scratch every single day. We use only the finest ingredients, local dairy, and premium meats — because every bite should taste like it was made for you, not made ahead.</>}
               </p>
 
               {/* 3 Pillar Stats Boxes */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
                 <div className="bg-white p-4 rounded-2xl border border-gray-200/80 shadow-xs flex flex-col items-start">
                   <ShieldCheck size={24} className="text-emerald-600 mb-2" />
-                  <div className="font-serif font-bold text-lg text-[var(--theme-primary)]">250+ Dishes</div>
-                  <div className="text-[11px] text-gray-500 font-semibold">Made Fresh Daily</div>
+                  <div className="font-serif font-bold text-lg text-[var(--theme-accent)]">250+ Dishes</div>
+                  <div className="text-[11px] text-gray-500 font-semibold">Made fresh daily</div>
                 </div>
 
                 <div className="bg-white p-4 rounded-2xl border border-gray-200/80 shadow-xs flex flex-col items-start">
                   <Sparkles size={24} className="text-[var(--theme-accent)] mb-2" />
-                  <div className="font-serif font-bold text-lg text-[var(--theme-primary)]">Zero Shortcuts</div>
-                  <div className="text-[11px] text-gray-500 font-semibold">No Pre-Made Sauces</div>
+                  <div className="font-serif font-bold text-lg text-[var(--theme-accent)]">Zero Shortcuts</div>
+                  <div className="text-[11px] text-gray-500 font-semibold">No pre-made sauces</div>
                 </div>
 
                 <div className="bg-white p-4 rounded-2xl border border-gray-200/80 shadow-xs flex flex-col items-start">
                   <HeartHandshake size={24} className="text-amber-500 mb-2" />
-                  <div className="font-serif font-bold text-lg text-[var(--theme-primary)]">40+ Years</div>
-                  <div className="text-[11px] text-gray-500 font-semibold">Uncompromising Quality</div>
+                  <div className="font-serif font-bold text-lg text-[var(--theme-accent)]">26  + Years</div>
+                  <div className="text-[11px] text-gray-500 font-semibold">Uncompromising quality</div>
                 </div>
               </div>
             </div>

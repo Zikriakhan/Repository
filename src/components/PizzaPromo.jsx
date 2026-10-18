@@ -1,5 +1,5 @@
 import React from 'react';
-import { Flame, ArrowRight, Star } from 'lucide-react';
+import { Heart, ArrowRight, Star } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAdminData } from '../context/AdminDataContext';
 
@@ -16,16 +16,16 @@ const PizzaPromo = () => {
 
   const handleQuickAdd = (e) => {
     e.stopPropagation();
-    const itemName = promo.title || "Ultimate Double Cheese Pizza";
-    const itemPrice = promo.price ? `AED${parseFloat(promo.price).toFixed(2)}` : "AED15.95";
-    const itemNumPrice = promo.price ? parseFloat(promo.price) : 15.95;
+    const itemName = promo.title || "Specialty Strawberry Cheesecake & Sundae";
+    const itemPrice = promo.price ? `AED ${parseFloat(promo.price).toFixed(2)}` : "AED 34.00";
+    const itemNumPrice = promo.price ? parseFloat(promo.price) : 34;
 
     addToCart({
       name: itemName,
       price: itemPrice,
       numPrice: itemNumPrice,
-      img: promo.imageUrl || "https://images.unsplash.com/photo-1616141215340-34b0e7c661c8?q=80&w=600&auto=format&fit=crop",
-      desc: promo.description || "A wood-fired crust loaded with a blend of mozzarella, provolone, and cheddar, pulled fresh for that signature cheese-stretch in every slice."
+      img: promo.imageUrl || "https://images.unsplash.com/photo-1533134242443-d4fd215305ad?q=80&w=1000&auto=format&fit=crop",
+      desc: promo.description || "Velvety smooth cream cheese baked over our legendary buttery graham crust, crowned with glazed fresh strawberries, rich Belgian chocolate swirls, and freshly whipped sweet cream."
     });
     alert(`🎉 ${itemName} added to your bag!`);
   };
@@ -42,34 +42,34 @@ const PizzaPromo = () => {
             <div>
               <div className="inline-flex items-center gap-2 text-[var(--theme-accent)] font-extrabold tracking-[0.2em] uppercase text-xs mb-4">
                 {promo.subtitle ? <span>{promo.subtitle}</span> : <>
-                  <span>SIGNATURE DISH</span>
+                  <span>SIGNATURE DESSERTS</span>
                   <span>•</span>
-                  <span>WOOD FIRED</span>
+                  <span>BAKED FROM SCRATCH</span>
                 </>}
               </div>
 
               <h2 className="font-serif text-[var(--theme-primary)] text-4xl sm:text-5xl md:text-6xl font-bold leading-tight mb-6" dangerouslySetInnerHTML={{
-                __html: promo.title || `Ultimate Double <br />
-                <span className="text-[var(--theme-accent)] italic font-normal">Cheese Pizza</span>` }}>
+                __html: promo.title || `Specialty Italian <br />
+                <span className="text-[var(--theme-accent)] italic font-normal">Desserts &amp; Cheesecake</span>` }}>
               </h2>
 
               <p className="text-gray-600 text-base sm:text-lg font-normal leading-relaxed mb-8">
-                {promo.description || 'A wood-fired crust loaded with a blend of mozzarella, provolone, and cheddar — pulled fresh for that legendary cheese-stretch in every single slice.'}
+                {promo.description || 'Velvety smooth cream cheese baked over our legendary buttery graham crust, crowned with glazed fresh strawberries, rich Belgian chocolate swirls, and freshly whipped sweet cream.'}
               </p>
 
               {/* Bullet Points */}
               <div className="space-y-3 mb-10">
                 <div className="flex items-center gap-3 text-sm font-semibold text-gray-700">
                   <Star size={18} className="text-[var(--theme-accent)] shrink-0 fill-[var(--theme-accent)]" />
-                  <span>Triple Cheese Blend — Mozzarella, Provolone & Cheddar</span>
+                  <span>Handcrafted daily from scratch with premium Philadelphia cream cheese</span>
                 </div>
                 <div className="flex items-center gap-3 text-sm font-semibold text-gray-700">
                   <Star size={18} className="text-[var(--theme-accent)] shrink-0 fill-[var(--theme-accent)]" />
-                  <span>Wood-Fired Signature Tomato Sauce</span>
+                  <span>Glazed fresh strawberries &amp; rich Belgian chocolate swirls</span>
                 </div>
                 <div className="flex items-center gap-3 text-sm font-semibold text-gray-700">
                   <Star size={18} className="text-[var(--theme-accent)] shrink-0 fill-[var(--theme-accent)]" />
-                  <span>Hand-Tossed Artisan Crust, Baked Fresh Daily</span>
+                  <span>Golden buttery graham cracker crust, baked fresh daily</span>
                 </div>
               </div>
             </div>
@@ -80,12 +80,12 @@ const PizzaPromo = () => {
                 onClick={handleQuickAdd}
                 className="flex-1 bg-[var(--theme-accent)] hover:opacity-90 text-white px-8 py-4 rounded-xl font-bold tracking-[0.15em] uppercase text-xs sm:text-sm shadow-lg hover:shadow-xl transition-all transform active:scale-95 flex items-center justify-center gap-3"
               >
-                <Flame size={18} />
-                <span>{promo.buttonText || `Order Now (AED${promo.price || '15.95'})`}</span>
+                <Heart size={18} className="fill-current" />
+                <span>{promo.buttonText || `Order Dessert — AED 34.00`}</span>
               </button>
 
               <button
-                onClick={(e) => navigateTo(e, '/menu/bites/ultimate-double-cheese-pizza')}
+                onClick={(e) => navigateTo(e, promo.buttonLink || '/menu/desserts/classic-strawberry-cheesecake')}
                 className="bg-gray-100 hover:bg-gray-200 text-[var(--theme-primary)] px-6 py-4 rounded-xl font-bold tracking-[0.15em] uppercase text-xs sm:text-sm transition-colors flex items-center justify-center gap-2 group"
               >
                 <span>Details</span>
@@ -98,8 +98,8 @@ const PizzaPromo = () => {
           {/* Right Column: Visual Showcase */}
           <div className="lg:col-span-6 relative min-h-[350px] sm:min-h-[450px] lg:min-h-[550px] overflow-hidden bg-gray-900 group order-2 lg:order-2">
             <img
-              src={promo.imageUrl || "https://images.unsplash.com/photo-1616141215340-34b0e7c661c8?q=80&w=600&auto=format&fit=crop"}
-              alt={promo.title || "Ultimate Double Cheese Pizza"}
+              src={promo.imageUrl || "https://images.unsplash.com/photo-1533134242443-d4fd215305ad?q=80&w=1000&auto=format&fit=crop"}
+              alt={promo.title || "Specialty Italian Desserts & Cheesecake"}
               className="w-full h-full object-cover object-center transform group-hover:scale-105 transition-transform duration-700"
             />
 
@@ -107,13 +107,13 @@ const PizzaPromo = () => {
 
             {/* Floating Quality Badge */}
             <div className="absolute top-6 left-6 z-20 bg-white/95 backdrop-blur-md text-[var(--theme-primary)] px-4 py-2 rounded-xl shadow-lg border border-gray-100 flex items-center gap-2 text-xs font-bold tracking-wider uppercase">
-              <Flame size={14} className="text-[var(--theme-accent)]" />
-              <span>Signature Pizza</span>
+              <Star size={14} className="text-[var(--theme-accent)] fill-current" />
+              <span>Signature Dessert</span>
             </div>
 
             {/* Price floating pill */}
             <div className="absolute bottom-6 right-6 z-20 bg-[var(--theme-accent)] text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-2 font-serif font-bold text-sm">
-              <span>AED{promo.price || '15.95'}</span>
+              <span>{promo.price ? ` AED. ${promo.price}` : ' AED. 34.00'}</span>
             </div>
           </div>
 

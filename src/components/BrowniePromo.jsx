@@ -16,16 +16,16 @@ const BrowniePromo = () => {
 
   const handleQuickAdd = (e) => {
     e.stopPropagation();
-    const itemName = promo.title || "Classic Italian Lasagna";
-    const itemPrice = promo.price ? `AED${parseFloat(promo.price).toFixed(2)}` : "AED18.95";
-    const itemNumPrice = promo.price ? parseFloat(promo.price) : 18.95;
+    const itemName = promo.title || "Classic Italian Wood-Fired Pizza";
+    const itemPrice = promo.price ? `AED ${parseFloat(promo.price).toFixed(2)}` : "AED 38.00";
+    const itemNumPrice = promo.price ? parseFloat(promo.price) : 38;
 
     addToCart({
       name: itemName,
       price: itemPrice,
       numPrice: itemNumPrice,
-      img: promo.imageUrl || "https://images.unsplash.com/photo-1574894709920-11b28e7367e3?q=80&w=600&auto=format&fit=crop",
-      desc: promo.description || "Layers of delicate pasta, rich slow-cooked meat sauce, creamy ricotta, and bubbling melted mozzarella cheese baked to aesthetic perfection."
+      img: promo.imageUrl || "https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=1000&auto=format&fit=crop",
+      desc: promo.description || "Hand-stretched artisanal dough topped with authentic San Marzano tomato sauce, fresh buffalo mozzarella, aromatic sweet basil leaves, and extra-virgin olive oil — baked to blistered perfection in our 450°C wood-fired oven."
     });
     alert(`🎉 ${itemName} added to your bag!`);
   };
@@ -46,16 +46,20 @@ const BrowniePromo = () => {
             <div>
               <div className="inline-flex items-center gap-2 bg-[var(--theme-accent)] text-white px-4 py-1.5 rounded-full text-xs font-extrabold tracking-[0.2em] uppercase mb-6 shadow-md">
                 <Sparkles size={14} />
-                {promo.subtitle || 'DEBUTS 7/30 • NEW FLAVOR'}
+                {promo.subtitle || 'DEBUTS 7/30 • SIGNATURE PIZZA'}
+              </div>
+
+              <div className="text-amber-400 font-extrabold tracking-[0.2em] uppercase text-xs mb-2">
+                Wood-Fired Signature
               </div>
 
               <h2 className="font-serif text-4xl sm:text-5xl md:text-6xl font-bold leading-tight mb-6 tracking-tight" dangerouslySetInnerHTML={{
                 __html: promo.title || `Classic Italian <br />
-                <span className="text-amber-300 italic font-normal">Lasagna</span>` }}>
+                <span className="text-amber-300 italic font-normal">Wood-Fired Pizza</span>` }}>
               </h2>
 
               <p className="text-gray-200 text-base sm:text-lg md:text-xl font-normal leading-relaxed mb-8 max-w-xl">
-                {promo.description || 'Layers of delicate pasta, rich slow-cooked meat sauce, creamy ricotta, and bubbling melted mozzarella cheese baked to aesthetic perfection!'}
+                {promo.description || 'Hand-stretched artisanal dough topped with authentic San Marzano tomato sauce, fresh buffalo mozzarella, aromatic sweet basil leaves, and extra-virgin olive oil — baked to blistered perfection in our 450°C wood-fired oven.'}
               </p>
             </div>
 
@@ -63,7 +67,7 @@ const BrowniePromo = () => {
             <div>
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 mb-8">
                 <button
-                  onClick={(e) => navigateTo(e, '/menu/bites/classic-italian-lasagna')}
+                  onClick={(e) => navigateTo(e, promo.buttonLink || '/menu/pizzas/classic-italian-pizza')}
                   className="bg-white hover:bg-gray-100 text-[var(--theme-primary)] px-8 py-4 rounded-xl font-bold tracking-[0.15em] uppercase text-xs sm:text-sm shadow-xl transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-3 group"
                 >
                   <span>Explore Flavor Details</span>
@@ -74,17 +78,17 @@ const BrowniePromo = () => {
                   onClick={handleQuickAdd}
                   className="bg-[var(--theme-accent)] hover:opacity-90 text-white px-8 py-4 rounded-xl font-bold tracking-[0.15em] uppercase text-xs sm:text-sm shadow-xl transition-all flex items-center justify-center gap-2"
                 >
-                  <span>{promo.buttonText || `+ Quick Add ($${promo.price || '18.95'})`}</span>
+                  <span>{promo.buttonText || `+ Quick Add (AED 38.00)`}</span>
                 </button>
               </div>
 
               {/* Highlights pills */}
               <div className="flex flex-wrap items-center gap-6 pt-6 border-t border-white/20 text-xs font-bold tracking-wider uppercase text-gray-300">
-                <span className="flex items-center gap-1.5"><Star size={16} className="text-amber-400" /> Authentic Recipe</span>
+                <span className="flex items-center gap-1.5"><Star size={16} className="text-amber-400" /> Wood-Fired at 450°C</span>
                 <span>•</span>
-                <span>🍝 Rich Meat Sauce</span>
+                <span>🍕 Hand-Stretched Dough</span>
                 <span>•</span>
-                <span>🧀 Melted Mozzarella</span>
+                <span>🧀 Fresh Mozzarella di Bufala</span>
               </div>
             </div>
 
@@ -93,8 +97,8 @@ const BrowniePromo = () => {
           {/* Right Column: Visual Showcase */}
           <div className="lg:col-span-5 relative min-h-[350px] sm:min-h-[450px] lg:min-h-full overflow-hidden bg-gray-900 group">
             <img
-              src={promo.imageUrl || "https://images.unsplash.com/photo-1574894709920-11b28e7367e3?q=80&w=600&auto=format&fit=crop"}
-              alt={promo.title || "Classic Italian Lasagna"}
+              src={promo.imageUrl || "https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=1000&auto=format&fit=crop"}
+              alt={promo.title || "Classic Italian Wood-Fired Pizza"}
               className="w-full h-full object-cover object-center transform group-hover:scale-105 transition-transform duration-700"
             />
 
@@ -105,7 +109,7 @@ const BrowniePromo = () => {
             {/* Floating Pill on Image */}
             <div className="absolute bottom-6 right-6 z-20 bg-white/95 backdrop-blur-md text-[var(--theme-primary)] px-5 py-3 rounded-2xl shadow-2xl border border-white flex items-center gap-3 font-serif font-bold text-sm">
               <span className="w-3 h-3 rounded-full bg-[var(--theme-accent)] animate-ping"></span>
-              <span>Limited Time Release</span>
+              <span>Wood-Fired Daily</span>
             </div>
           </div>
 

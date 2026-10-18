@@ -1,4 +1,5 @@
 import React from 'react';
+import logoImg from '../assets/logo.png';
 
 const RewardsOffers = () => {
   return (
@@ -15,16 +16,16 @@ const RewardsOffers = () => {
 
       <div className="z-10 text-center max-w-2xl px-6">
         {/* Logo */}
-        <div className="flex flex-col items-center mb-6">
+        {/* <div className="flex flex-col items-center mb-6">
           <div className="inline-block bg-white px-8 py-3.5 rounded-xl shadow-2xl mb-3">
             <img
-              src="/logo.png"
-              alt="The Cheesecake Factory Logo"
+              src={logoImg}
+              alt="Italian Pizza Kawkab Logo"
               className="h-16 md:h-20 lg:h-24 w-auto object-contain"
             />
           </div>
           <span className="text-[#d0dbd4] text-sm tracking-[0.3em] font-sans uppercase font-bold">Rewards</span>
-        </div>
+        </div> */}
 
         <h3 className="text-white font-bold text-xl md:text-2xl mb-2">
           Members Enjoy:
@@ -36,7 +37,7 @@ const RewardsOffers = () => {
             <path d="M5.5 12.5h11a.75.75 0 0 0 0-1.5h-11a.75.75 0 0 0 0 1.5z" />
           </svg>
           <h2 className="font-serif text-white text-5xl md:text-6xl font-bold">
-            DoorDash Offers
+            Italian Pizza Offers
           </h2>
         </div>
 
@@ -50,7 +51,7 @@ const RewardsOffers = () => {
         </div>
 
         <p className="text-white text-xs font-medium tracking-wide">
-          Available in the United States, including Puerto Rico
+          Available in the U buhaira corniche - Al Majaz 3 - Al Majaz - Sharjah - United Arab Emirates
         </p>
       </div>
     </section>

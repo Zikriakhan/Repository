@@ -133,7 +133,7 @@ export default function Careers() {
       <section className="py-32 px-6 md:px-12 text-center max-w-4xl mx-auto">
         <h2 className="font-serif text-[#044d1d] text-5xl font-bold mb-8">A Legacy of Legendary Quality</h2>
         <p className="text-gray-600 text-xl leading-relaxed font-medium">
-          At The Cheesecake Factory, our people are the foundation of our success. We are looking for passionate individuals who share our dedication to culinary excellence, from-scratch cooking, and world-class hospitality. Join our team and be part of an extraordinary legacy.
+          At The Italian pizza kawkab Factory, our people are the foundation of our success. We are looking for passionate individuals who share our dedication to culinary excellence, from-scratch cooking, and world-class hospitality. Join our team and be part of an extraordinary legacy.
         </p>
       </section>
 
@@ -365,7 +365,7 @@ export default function Careers() {
 
         <div className="relative z-10 max-w-5xl mx-auto px-6">
           <span className="text-[#d0dbd4] font-bold text-xs tracking-[0.2em] uppercase mb-4 block">Behind The Scenes</span>
-          <h2 className="font-serif text-5xl font-bold mb-8">The Cheesecake Factory Standard</h2>
+          <h2 className="font-serif text-5xl font-bold mb-8">The Italian pizza kawkab Factory Standard</h2>
           <p className="text-gray-300 text-xl mb-16">Witness the passion, energy, and precision that defines our kitchens every single day.</p>
 
           <div className="relative group cursor-pointer w-full max-w-4xl mx-auto rounded-sm overflow-hidden shadow-2xl border border-gray-700 hover:border-gray-500 transition-colors">

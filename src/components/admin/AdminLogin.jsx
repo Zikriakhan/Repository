@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ShieldCheck, Lock, User, ArrowRight, Sparkles, CheckCircle2 } from 'lucide-react';
+import logoImg from '../../assets/logo.png';
 
 export default function AdminLogin({ onLogin }) {
   const [username, setUsername] = useState('');
@@ -63,8 +64,8 @@ export default function AdminLogin({ onLogin }) {
         <div className="text-center mb-8">
           <div className="inline-block bg-white px-6 py-3 rounded-sm shadow-lg border border-gray-100 mb-6 transform hover:scale-105 transition-transform">
             <img
-              src="/logo.png"
-              alt="The Cheesecake Factory Logo"
+              src={logoImg}
+              alt="Italian Pizza Kawkab Logo"
               className="h-12 sm:h-14 w-auto object-contain mx-auto"
             />
           </div>

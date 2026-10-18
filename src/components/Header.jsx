@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ShoppingBag, User, Menu, X, Mail, Lock, CheckCircle, ShieldCheck } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import logoImg from '../assets/logo12-removebg-preview_preview_rev_1.png';
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -20,15 +21,33 @@ const Header = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 30) {
-        setIsScrolled(true);
+      const heroSection = document.getElementById('hero');
+      if (heroSection) {
+        // Calculate based on the Hero section's height:
+        // When hero bottom reaches header (~80px), the next section ("DEBUTS 7/30 • SIGNATURE PIZZA") is showing
+        const heroRect = heroSection.getBoundingClientRect();
+        if (heroRect.bottom <= 80) {
+          setIsScrolled(true);
+        } else {
+          setIsScrolled(false);
+        }
       } else {
-        setIsScrolled(false);
+        // On pages without hero section, default to white header for legibility
+        const isHomePage = window.location.pathname === '/' || window.location.pathname === '';
+        setIsScrolled(!isHomePage || window.scrollY > 20);
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleScroll);
+    window.addEventListener('popstate', handleScroll);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+      window.removeEventListener('popstate', handleScroll);
+    };
   }, []);
 
   useEffect(() => {
@@ -92,10 +111,10 @@ const Header = () => {
   const navLinks = [
     { name: 'BROWSE MENU', path: '/BrowseMenu' },
     { name: 'LOCATIONS', path: '/locations' },
-    { name: 'GIFT CARDS', path: '/gift-cards' },
+    { name: 'loyalty cards', path: '/loyalty-cards' },
     { name: 'CAREERS', path: '/careers' },
     { name: 'RESERVATIONS', path: '/reservations' },
-    { name: 'REWARDS', path: '/rewards' }
+    { name: 'Partys & Evetes', path: '/rewards' }
   ];
 
   const cartCount = getCartCount();
@@ -103,83 +122,119 @@ const Header = () => {
   return (
     <>
       <header
-        className={`fixed  w-full z-40 transition-all duration-300 bg-white border-b border-gray-100 ${isScrolled ? 'shadow-md' : ' shadow-sm'
+        className={`fixed w-full z-40 transition-all duration-300 border-b ${isScrolled
+          ? 'shadow-lg py-1 border-black/10'
+          : 'shadow-sm py-2 border-white/15'
           }`}
+        style={{
+          backgroundColor: isScrolled
+            ? 'rgba(255, 255, 255, 0.96)'
+            : 'rgba(0, 0, 0, 0.25)',
+          backdropFilter: isScrolled ? 'blur(16px)' : 'blur(8px)',
+          WebkitBackdropFilter: isScrolled ? 'blur(16px)' : 'blur(8px)',
+          borderBottom: isScrolled
+            ? '1px solid rgba(0, 0, 0, 0.08)'
+            : '1px solid rgba(255, 255, 255, 0.15)'
+        }}
       >
-        <div className="max-w-[1440px] mx-auto px-6 md:px-12 flex items-center justify-between">
+        <div className="max-w-[1440px] mx-auto  flex items-center justify-between w-full">
 
           {/* Mobile Menu Toggle Button */}
-          <button className="lg:hidden text-[var(--theme-primary)] hover:opacity-80 transition-opacity p-2" onClick={toggleMobileMenu}>
-            {isMobileMenuOpen ? <X size={26} /> : <Menu size={26} />}
+          <button
+            className={`lg:hidden transition-colors p-2 ${isScrolled ? 'text-[var(--theme-primary)] hover:opacity-80' : 'text-white hover:text-amber-300'
+              }`}
+            onClick={toggleMobileMenu}
+          >
+            {isMobileMenuOpen ? <X size={30} /> : <Menu size={30} />}
           </button>
 
-          {/* Logo */}
-          <div className="flex-shrink-0 cursor-pointer flex items-center" onClick={(e) => navigateTo(e, '/')}>
+          {/* Logo - Increased Size */}
+          <div className="flex-shrink-0 cursor-pointer flex items-center py-1" onClick={(e) => navigateTo(e, '/')}>
             <img
-              src="/logo.png"
-              alt="The Cheesecake Factory Logo"
-              className="h-12 md:h-24 w-auto object-contain transition-transform duration-200 hover:scale-105 drop-shadow-sm"
+              src={logoImg}
+              alt="Italian Pizza Kawkab Logo"
+              className="h-16 sm:h-20 md:h-28 lg:h-32 w-auto object-contain transition-transform duration-200 hover:scale-105 drop-shadow-md"
             />
           </div>
 
-          {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center space-x-6 xl:space-x-8 font-sans text-[12px] xl:text-[13px] font-bold tracking-[0.12em] uppercase">
+          {/* Desktop Navigation Links - Professional Adaptive RGBA Colors */}
+          <nav className="hidden lg:flex items-center space-x-6 xl:space-x-8 font-sans text-[13px] xl:text-[15px] font-extrabold tracking-[0.13em] uppercase">
             {navLinks.map((link, idx) => (
               <a
                 key={idx}
                 href={link.path}
                 onClick={(e) => link.onClick ? (e.preventDefault(), link.onClick()) : navigateTo(e, link.path)}
-                className="text-[var(--theme-primary)] hover:text-[var(--theme-accent)] transition-colors duration-200 relative group py-1"
+                className={`transition-colors duration-200 relative group  ${isScrolled
+                  ? 'text-[var(--theme-primary)] hover:text-[var(--theme-accent)]'
+                  : 'text-white hover:text-amber-300 drop-shadow-sm'
+                  }`}
               >
                 {link.name}
-                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[var(--theme-accent)] transition-all duration-300 group-hover:w-full"></span>
+                <span className={`absolute bottom-0 left-0 w-0 h-0.5 transition-all duration-300 group-hover:w-full ${isScrolled ? 'bg-[var(--theme-accent)]' : 'bg-amber-400'
+                  }`}></span>
               </a>
             ))}
           </nav>
 
-          {/* Right Section: Admin portal, User Login, Bag, Order Now Button */}
-          <div className="flex items-center space-x-3 md:space-x-5">
+          {/* Right Section: Admin portal, User Login, Bag, Order Now Button - Increased Sizes */}
+          <div className="flex items-center space-x-4 md:space-x-6">
 
             {/* Quick Admin Dashboard Link */}
             {isAdminAuthed && (
               <button
                 onClick={(e) => navigateTo(e, '/admin')}
-                className="hidden xl:flex items-center gap-1.5 bg-[#fdfaf5] hover:bg-[#faebd7] text-[#3a1e26] border border-[#3a1e26]/20 px-3 py-1.5 rounded-sm text-[11px] font-extrabold tracking-wider uppercase transition-all shadow-sm"
+                className={`hidden xl:flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-extrabold tracking-wider uppercase transition-all shadow-sm ${isScrolled
+                  ? 'bg-[#fdfaf5] hover:bg-[#faebd7] text-[#3a1e26] border border-[#3a1e26]/20'
+                  : 'bg-white/15 hover:bg-white/25 text-white border border-white/30 backdrop-blur-md'
+                  }`}
                 title="Access Admin Dashboard Portal"
               >
-                <ShieldCheck size={16} className="text-[#3a1e26]" />
+                <ShieldCheck size={18} className={isScrolled ? 'text-[#3a1e26]' : 'text-amber-300'} />
                 <span>Admin Portal</span>
               </button>
             )}
 
-            {/* User / LOGIN Button */}
+            {/* User / LOGIN Button - Increased Size */}
             <button
               onClick={openLoginModal}
-              className="flex items-center gap-1.5 text-[var(--theme-primary)] hover:text-[var(--theme-accent)] transition-colors font-sans text-[12px] font-bold tracking-wider uppercase group"
+              className={`flex items-center gap-2 transition-colors font-sans text-xs md:text-sm font-extrabold tracking-wider uppercase group py-1 ${isScrolled
+                ? 'text-[var(--theme-primary)] hover:text-[var(--theme-accent)]'
+                : 'text-white hover:text-amber-300 drop-shadow-sm'
+                }`}
               title="Member & Admin Login"
             >
-              <User size={22} strokeWidth={1.75} className="text-[var(--theme-primary)] group-hover:text-[var(--theme-accent)] transition-colors" />
+              <User
+                size={24}
+                strokeWidth={2}
+                className={`transition-colors ${isScrolled
+                  ? 'text-[var(--theme-primary)] group-hover:text-[var(--theme-accent)]'
+                  : 'text-white group-hover:text-amber-300'
+                  }`}
+              />
               <span className="hidden sm:inline">{isLoggedIn ? "MY ACCOUNT" : "LOGIN"}</span>
             </button>
 
-            {/* Shopping Bag / Cart */}
+            {/* Shopping Bag / Cart - Increased Size */}
             <button
               onClick={(e) => navigateTo(e, '/order')}
-              className="text-[var(--theme-primary)] hover:text-[var(--theme-accent)] transition-colors relative p-1"
+              className={`transition-colors relative p-1.5 ${isScrolled
+                ? 'text-[var(--theme-primary)] hover:text-[var(--theme-accent)]'
+                : 'text-white hover:text-amber-300 drop-shadow-sm'
+                }`}
               aria-label="Shopping Cart"
             >
-              <ShoppingBag size={22} strokeWidth={1.75} />
+              <ShoppingBag size={24} strokeWidth={2} />
               {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-[var(--theme-accent)] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold shadow-sm">
+                <span className="absolute -top-1 -right-1 bg-[var(--theme-accent)] text-white text-[11px] w-5 h-5 rounded-full flex items-center justify-center font-black shadow-md animate-pulse">
                   {cartCount}
                 </span>
               )}
             </button>
 
-            {/* ORDER NOW Button */}
+            {/* ORDER NOW Button - Increased Size */}
             <button
               onClick={(e) => navigateTo(e, '/order')}
-              className="bg-[var(--theme-accent)] hover:opacity-90 text-white px-5 md:px-7 py-2.5 md:py-3 text-[12px] font-bold tracking-[0.15em] uppercase transition-all shadow-md hover:shadow-lg rounded-none transform active:scale-95"
+              className="bg-[var(--theme-accent)] hover:opacity-95 hover:shadow-xl text-white px-6 md:px-8 py-3 md:py-3.5 text-xs md:text-sm font-black tracking-[0.18em] uppercase transition-all shadow-md rounded-xl transform hover:scale-105 active:scale-95"
             >
               ORDER NOW
             </button>
@@ -189,7 +244,14 @@ const Header = () => {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden fixed inset-0 top-[65px] bg-white z-40 flex flex-col p-6 overflow-y-auto animate-smooth-reveal border-t border-gray-100">
+        <div
+          className="lg:hidden fixed inset-0 top-[78px] sm:top-[88px] z-40 flex flex-col p-6 overflow-y-auto animate-smooth-reveal border-t border-gray-100"
+          style={{
+            backgroundColor: 'rgba(255, 255, 255, 0.98)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)'
+          }}
+        >
           <nav className="flex flex-col space-y-4 font-sans text-sm font-bold tracking-widest uppercase text-[var(--theme-primary)]">
             {navLinks.map((link, idx) => (
               <a
@@ -245,8 +307,8 @@ const Header = () => {
               <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-10 -mt-10 pointer-events-none"></div>
               <div className="inline-block bg-white px-4 py-1.5 rounded-md shadow-md mb-2">
                 <img
-                  src="/logo.png"
-                  alt="The Cheesecake Factory Logo"
+                  src={logoImg}
+                  alt="Italian Pizza Kawkab Logo"
                   className="h-10 w-auto object-contain mx-auto"
                 />
               </div>
@@ -261,7 +323,7 @@ const Header = () => {
                     {isAdminRedirect ? "Admin Portal Authenticated!" : "Welcome Back!"}
                   </h3>
                   <p className="text-gray-600 text-sm">
-                    {isAdminRedirect ? "Redirecting to your Admin Dashboard..." : "You are now logged in to Cheesecake Rewards®."}
+                    {isAdminRedirect ? "Redirecting to your Admin Dashboard..." : "You are now logged in to Italian pizza kawkabRewards®."}
                   </p>
                 </div>
               ) : (
@@ -337,8 +399,8 @@ const Header = () => {
               <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-10 -mt-10 pointer-events-none"></div>
               <div className="inline-block bg-white px-4 py-1.5 rounded-md shadow-md mb-2">
                 <img
-                  src="/logo.png"
-                  alt="The Cheesecake Factory Logo"
+                  src={logoImg}
+                  alt="Italian Pizza Kawkab Logo"
                   className="h-10 w-auto object-contain mx-auto"
                 />
               </div>

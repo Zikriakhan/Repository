@@ -1,97 +1,79 @@
 import React, { useState } from 'react';
-import { MapPin, ShoppingBag, Truck, Search, Compass, Clock } from 'lucide-react';
-
-const MOCK_LOCATIONS = [
-  {
-    id: 1,
-    name: "Beverly Hills",
-    address: "252 N Beverly Dr",
-    cityState: "Beverly Hills, CA 90210",
-    distance: "1.2 mi",
-    status: "Open until 11:00 PM"
-  },
-  {
-    id: 2,
-    name: "Santa Monica Place",
-    address: "395 Santa Monica Pl",
-    cityState: "Santa Monica, CA 90401",
-    distance: "5.4 mi",
-    status: "Open until 10:00 PM"
-  },
-  {
-    id: 3,
-    name: "Marina Del Rey",
-    address: "4718 Admiralty Way",
-    cityState: "Marina del Rey, CA 90292",
-    distance: "8.1 mi",
-    status: "Open until 11:00 PM"
-  }
-];
+import { MapPin, ShoppingBag, Truck, Search, Compass, Clock, Phone, MessageCircle, ExternalLink, Navigation, Sparkles } from 'lucide-react';
+import { SHARJAH_LOCATIONS } from './FindRestaurant';
 
 export default function Locations() {
   const [activeTab, setActiveTab] = useState('Near You');
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedLocation, setSelectedLocation] = useState(SHARJAH_LOCATIONS[0]);
   const [isSearching, setIsSearching] = useState(false);
-  const [results, setResults] = useState([]);
-  const [hasSearched, setHasSearched] = useState(false);
+
+  const filteredLocations = SHARJAH_LOCATIONS.filter(loc =>
+    loc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    loc.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    loc.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    loc.tag.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const handleSearch = (e) => {
     if (e) e.preventDefault();
-    if (!searchQuery.trim() && activeTab !== 'Near You') return;
-
     setIsSearching(true);
-    setHasSearched(true);
-
-    // Simulate API call
     setTimeout(() => {
-      // Basic mock filter
-      if (searchQuery.toLowerCase().includes('no')) {
-        setResults([]);
-      } else {
-        setResults(MOCK_LOCATIONS);
-      }
       setIsSearching(false);
-    }, 800);
+    }, 300);
   };
 
   const handleNearYou = () => {
     setActiveTab('Near You');
     setSearchQuery('');
-    handleSearch();
+    setSelectedLocation(SHARJAH_LOCATIONS[0]);
   };
 
   return (
-    <div className="min-h-screen font-sans flex flex-col bg-[#FFFFFF] pt-24">
+    <div className="min-h-screen font-sans flex flex-col bg-[var(--theme-light)] pt-24 text-[#1F2937]">
 
+      {/* Page Header */}
       <div className="max-w-[1440px] mx-auto w-full px-6 md:px-12 py-10">
-        <h1 className="font-serif text-4xl md:text-5xl font-bold text-[#3a1e26] mb-4">Find a Restaurant</h1>
-        <p className="text-gray-600 font-medium text-sm max-w-xl">
-          Discover over 210 The Cheesecake Factory restaurants nationwide and globally. Whether you are looking for an unforgettable dine-in meal, legendary cheesecakes, or convenient curbside pickup, we are ready to serve you.
+        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-300/60 text-xs font-black tracking-widest uppercase mb-3 shadow-sm">
+          <Sparkles size={13} className="text-amber-700" />
+          <span>AUTHENTIC WOOD-FIRED PIZZERIAS IN SHARJAH</span>
+        </div>
+        <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-[var(--theme-primary)] mb-4">
+          Find a Restaurant LOCATIONS
+        </h1>
+        <p className="text-gray-700 font-medium text-base sm:text-lg max-w-2xl leading-relaxed">
+          Craving something extraordinary? Visit our authentic Italian pizzerias across Sharjah or contact us on WhatsApp for fast local delivery and takeaway!
         </p>
       </div>
 
       {/* Filter Bar */}
-      <div className="bg-white shadow-md z-10 flex flex-col md:flex-row items-center w-full max-w-[1440px] mx-auto px-6 md:px-12 py-4 mb-8 rounded-sm border border-gray-100">
+      <div className="bg-white shadow-md z-10 flex flex-col md:flex-row items-center w-full max-w-[1440px] mx-auto px-6 md:px-12 py-4 mb-8 rounded-2xl border border-gray-200">
 
         {/* Left Actions */}
-        <div className="flex w-full md:w-auto h-12 md:h-14 border border-gray-200 rounded-sm overflow-hidden mb-4 md:mb-0">
+        <div className="flex w-full md:w-auto h-12 md:h-14 border border-gray-200 rounded-xl overflow-hidden mb-4 md:mb-0 bg-gray-50">
           <button
             onClick={handleNearYou}
-            className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-8 font-bold text-xs uppercase tracking-wider transition-colors ${activeTab === 'Near You' ? 'bg-[#3a1e26] text-white hover:bg-[#522a36]' : 'bg-white text-[#3a1e26] hover:bg-gray-50'}`}
+            className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-6 font-bold text-xs uppercase tracking-wider transition-colors ${
+              activeTab === 'Near You' ? 'bg-[var(--theme-accent)] text-white shadow-md' : 'bg-transparent text-[var(--theme-primary)] hover:bg-gray-100'
+            }`}
           >
             <MapPin size={16} />
             Near You
           </button>
           <button
             onClick={() => setActiveTab('Pickup')}
-            className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-8 font-bold text-xs uppercase tracking-wider border-l border-gray-200 transition-colors ${activeTab === 'Pickup' ? 'bg-[#3a1e26] text-white hover:bg-[#522a36]' : 'bg-white text-[#3a1e26] hover:bg-gray-50'}`}
+            className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-6 font-bold text-xs uppercase tracking-wider border-l border-gray-200 transition-colors ${
+              activeTab === 'Pickup' ? 'bg-[var(--theme-accent)] text-white shadow-md' : 'bg-transparent text-[var(--theme-primary)] hover:bg-gray-100'
+            }`}
           >
             <ShoppingBag size={16} />
             Pickup
           </button>
           <button
             onClick={() => setActiveTab('Delivery')}
-            className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-8 font-bold text-xs uppercase tracking-wider border-l border-gray-200 transition-colors ${activeTab === 'Delivery' ? 'bg-[#3a1e26] text-white hover:bg-[#522a36]' : 'bg-white text-[#3a1e26] hover:bg-gray-50'}`}
+            className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-6 font-bold text-xs uppercase tracking-wider border-l border-gray-200 transition-colors ${
+              activeTab === 'Delivery' ? 'bg-[var(--theme-accent)] text-white shadow-md' : 'bg-transparent text-[var(--theme-primary)] hover:bg-gray-100'
+            }`}
           >
             <Truck size={16} />
             Delivery
@@ -99,7 +81,7 @@ export default function Locations() {
         </div>
 
         {/* Search Input */}
-        <form onSubmit={handleSearch} className="flex-1 flex h-12 md:h-14 w-full md:w-auto md:ml-6 border border-gray-200 rounded-sm overflow-hidden">
+        <form onSubmit={handleSearch} className="flex-1 flex h-12 md:h-14 w-full md:w-auto md:ml-6 border border-gray-200 rounded-xl overflow-hidden shadow-sm">
           <div className="flex-1 relative flex items-center bg-gray-50">
             <div className="absolute left-4 text-gray-400">
               <Compass size={20} />
@@ -108,13 +90,13 @@ export default function Locations() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="City, State, or Zip Code"
-              className="w-full h-full pl-12 pr-4 bg-transparent text-[#3a1e26] placeholder-gray-400 font-medium focus:outline-none focus:bg-white transition-colors uppercase"
+              placeholder="Search area (e.g. Corniche, Al Majaz, Al Taawun, Sharjah)..."
+              className="w-full h-full pl-12 pr-4 bg-transparent text-[var(--theme-primary)] placeholder-gray-400 font-semibold text-xs sm:text-sm focus:outline-none focus:bg-white transition-colors"
             />
           </div>
           <button
             type="submit"
-            className="bg-[#92141f] hover:bg-[#a61723] text-white px-10 font-bold text-xs uppercase tracking-[0.15em] transition-colors flex items-center justify-center gap-2"
+            className="bg-[var(--theme-accent)] hover:bg-[#a61723] text-white px-8 font-extrabold text-xs uppercase tracking-[0.15em] transition-colors flex items-center justify-center gap-2 shrink-0 shadow-md"
           >
             {isSearching ? (
               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -125,112 +107,200 @@ export default function Locations() {
         </form>
       </div>
 
-      <div className="flex flex-col lg:flex-row max-w-[1440px] mx-auto w-full px-6 md:px-12 gap-8 pb-20 flex-1">
+      {/* Main Map + Locations Directory Section */}
+      <div className="flex flex-col lg:flex-row max-w-[1440px] mx-auto w-full px-6 md:px-12 gap-8 pb-20 flex-1 items-stretch">
 
-        {/* Map Section */}
-        <div className="relative w-full lg:w-2/3 h-[50vh] lg:h-[70vh] bg-[#E5E7EB] rounded-sm overflow-hidden shadow-inner premium-card border border-gray-200">
-          <div className="absolute inset-0 opacity-30 pointer-events-none" style={{
-            backgroundImage: 'url(https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=2000&auto=format&fit=crop)',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            filter: 'grayscale(50%)'
-          }}></div>
-
-          {/* Central Pin Mock */}
-          <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center animate-bounce">
-            <div className="w-16 h-16 bg-[#92141f] rounded-full border-4 border-white flex items-center justify-center shadow-xl">
-              <div className="flex flex-col items-center text-white">
-                <MapPin size={28} strokeWidth={2} />
-              </div>
+        {/* Live Interactive Google Map */}
+        <div className="w-full lg:w-7/12 min-h-[460px] lg:min-h-[640px] bg-neutral-900 rounded-2xl overflow-hidden shadow-2xl border-2 border-gray-200 flex flex-col relative">
+          
+          {/* Top Bar on Map */}
+          <div className="bg-[var(--theme-primary)] px-6 py-3.5 border-b border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs text-white z-10 shadow-md">
+            <div className="flex items-center gap-2 font-bold">
+              <MapPin size={16} className="text-amber-400" />
+              <span>Google Maps: <strong className="text-amber-300">{selectedLocation.name}</strong></span>
             </div>
-            <div className="w-4 h-4 bg-[#92141f]/40 rounded-full mt-2 filter blur-sm"></div>
+            <a
+              href={selectedLocation.googleMapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-amber-300 hover:text-white font-extrabold flex items-center gap-1 uppercase tracking-wider text-[11px] transition-colors"
+            >
+              <span>Open in Google Maps App</span>
+              <ExternalLink size={13} />
+            </a>
           </div>
 
-          {/* Additional Mock Pins if results exist */}
-          {results.length > 0 && !isSearching && (
-            <>
-              <div className="absolute left-[30%] top-[40%] text-[#3a1e26] hover:text-[#92141f] transition-colors cursor-pointer"><MapPin size={32} fill="white" /></div>
-              <div className="absolute left-[60%] top-[60%] text-[#3a1e26] hover:text-[#92141f] transition-colors cursor-pointer"><MapPin size={32} fill="white" /></div>
-            </>
-          )}
+          {/* Embedded Google Map iframe */}
+          <div className="relative flex-grow w-full min-h-[400px]">
+            <iframe
+              key={selectedLocation.id}
+              title={`${selectedLocation.name} Google Map`}
+              src={selectedLocation.embedMapUrl}
+              width="100%"
+              height="100%"
+              style={{ border: 0, minHeight: '420px' }}
+              allowFullScreen=""
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              className="w-full h-full filter contrast-[1.05]"
+            />
 
-          {/* Map Controls */}
-          <div className="absolute bottom-6 right-6 flex flex-col shadow-lg rounded-sm overflow-hidden bg-white">
-            <button className="w-10 h-10 text-[#3a1e26] flex items-center justify-center hover:bg-gray-100 hover:text-[#92141f] text-2xl font-light border-b border-gray-200 transition-colors">
-              +
-            </button>
-            <button className="w-10 h-10 text-[#3a1e26] flex items-center justify-center hover:bg-gray-100 hover:text-[#92141f] text-2xl font-light transition-colors">
-              -
-            </button>
+            {/* Floating Map Overlay Badge */}
+            <div className="absolute bottom-6 left-6 z-10 bg-white/95 backdrop-blur-md border border-gray-200 p-4 rounded-2xl shadow-2xl max-w-sm text-left hidden sm:block text-gray-900">
+              <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-300 mb-1.5 inline-block">
+                {selectedLocation.tag}
+              </span>
+              <p className="font-serif font-bold text-[var(--theme-primary)] text-base mb-1">
+                {selectedLocation.name}
+              </p>
+              <p className="text-xs text-gray-600 leading-snug mb-3">
+                {selectedLocation.address}, {selectedLocation.city}
+              </p>
+              <div className="flex items-center gap-2">
+                <a
+                  href={selectedLocation.googleMapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-[11px] font-black uppercase tracking-wider text-white bg-[var(--theme-accent)] hover:opacity-90 px-3 py-1.5 rounded-lg transition-colors shadow-sm"
+                >
+                  <Navigation size={12} />
+                  <span>Directions</span>
+                </a>
+                <a
+                  href={`https://wa.me/${selectedLocation.whatsappNumber}?text=${encodeURIComponent(`Hello Italian Pizza Kawkab, I would like to order from ${selectedLocation.name}.`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-[11px] font-black uppercase tracking-wider text-white bg-emerald-600 hover:bg-emerald-500 px-3 py-1.5 rounded-lg transition-colors shadow-sm"
+                >
+                  <MessageCircle size={12} />
+                  <span>WhatsApp</span>
+                </a>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Results Sidebar */}
-        <div className="w-full lg:w-1/3 flex flex-col h-[50vh] lg:h-[70vh] bg-white rounded-sm shadow-sm border border-gray-100 overflow-hidden">
-          <div className="p-6 bg-[#3a1e26] text-white shrink-0">
-            <h3 className="font-serif text-2xl font-bold mb-1 text-[#ffd700]">Restaurant Directory</h3>
-            <p className="text-gray-300 text-xs uppercase tracking-widest">
-              {activeTab === 'Near You' ? 'Showing locations near you' : `Showing ${activeTab} options`}
-            </p>
+        {/* Results Sidebar Directory */}
+        <div className="w-full lg:w-5/12 flex flex-col bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+          <div className="p-6 bg-[var(--theme-primary)] text-white shrink-0 border-b border-white/10">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-serif text-2xl font-bold mb-1 text-amber-400">Sharjah Locations</h3>
+                <p className="text-gray-300 text-xs uppercase tracking-widest">
+                  Showing {filteredLocations.length} locations across Sharjah
+                </p>
+              </div>
+              <span className="text-xs font-black bg-white/15 px-3 py-1 rounded-full text-amber-300">
+                Sharjah, UAE
+              </span>
+            </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto bg-gray-50/50">
-            {isSearching ? (
-              <div className="p-8 flex flex-col justify-center items-center h-full">
-                <div className="w-10 h-10 border-4 border-gray-200 border-t-[#92141f] rounded-full animate-spin mb-4" />
-                <p className="text-gray-500 font-medium text-sm">Searching locations...</p>
-              </div>
-            ) : !hasSearched && results.length === 0 ? (
-              <div className="p-8 flex flex-col justify-center items-center text-center h-full">
-                <div className="w-20 h-20 bg-white shadow-sm rounded-full flex items-center justify-center mb-6">
-                  <Search size={32} className="text-gray-300" />
-                </div>
-                <p className="text-[#3a1e26] text-lg mb-3 font-bold">
-                  Find Your Cheesecake
-                </p>
-                <p className="text-gray-500 text-sm leading-relaxed max-w-[250px]">
-                  Enter a location to find restaurants, or use "Near You" to find the closest Cheesecake Factory.
-                </p>
-              </div>
-            ) : results.length > 0 ? (
-              <div className="flex flex-col p-4 gap-4">
-                {results.map((location) => (
-                  <div key={location.id} className="bg-white p-5 rounded-sm border border-gray-100 shadow-sm hover:shadow-md transition-shadow group">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 max-h-[640px] bg-gray-50/50">
+            {filteredLocations.length > 0 ? (
+              filteredLocations.map((location) => {
+                const isSelected = selectedLocation.id === location.id;
+                return (
+                  <div
+                    key={location.id}
+                    onClick={() => setSelectedLocation(location)}
+                    className={`cursor-pointer bg-white p-5 rounded-xl border transition-all duration-200 shadow-sm hover:shadow-md ${
+                      isSelected
+                        ? 'border-[var(--theme-accent)] ring-2 ring-[var(--theme-accent)]/30 bg-red-50/30'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
                     <div className="flex justify-between items-start mb-2">
-                      <h4 className="font-bold text-[#3a1e26] text-lg group-hover:text-[#92141f] transition-colors">{location.name}</h4>
-                      <span className="text-xs font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded-full">{location.distance}</span>
+                      <div>
+                        <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md ${
+                          isSelected ? 'bg-[var(--theme-accent)] text-white' : 'bg-amber-100 text-amber-900 border border-amber-300/60'
+                        }`}>
+                          {location.tag}
+                        </span>
+                        <h4 className="font-serif font-bold text-[var(--theme-primary)] text-lg mt-1 group-hover:text-[var(--theme-accent)] transition-colors">
+                          {location.name}
+                        </h4>
+                      </div>
+                      <span className="text-xs font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded-full shrink-0">
+                        {location.distance}
+                      </span>
                     </div>
 
-                    <div className="text-gray-600 text-sm mb-4 space-y-1">
-                      <p>{location.address}</p>
-                      <p>{location.cityState}</p>
+                    <div className="text-gray-600 text-xs sm:text-sm mb-3 space-y-1">
+                      <p className="font-semibold text-gray-900">{location.address}</p>
+                      <p className="text-gray-500">{location.city}</p>
                     </div>
 
-                    <div className="flex items-center gap-4 text-xs font-bold text-gray-500 mb-5">
-                      <div className="flex items-center gap-1.5"><Clock size={14} className="text-[#92141f]" /> {location.status}</div>
+                    <div className="flex flex-wrap items-center gap-3 text-xs text-gray-600 mb-4">
+                      <div className="flex items-center gap-1 font-medium">
+                        <Clock size={14} className="text-[var(--theme-accent)]" />
+                        <span>{location.hours}</span>
+                      </div>
+                      <div className="flex items-center gap-1 font-mono font-bold text-[var(--theme-accent)]">
+                        <Phone size={14} className="text-[var(--theme-accent)]" />
+                        <span>{location.phoneDisplay}</span>
+                      </div>
                     </div>
 
-                    <div className="flex gap-3">
-                      <button className="flex-1 border border-[#3a1e26] text-[#3a1e26] hover:bg-[#3a1e26] hover:text-white py-2 font-bold text-xs uppercase tracking-wider transition-colors">
-                        Details
+                    {/* Features */}
+                    <div className="flex flex-wrap gap-1.5 mb-4">
+                      {location.features.map((feat, idx) => (
+                        <span key={idx} className="text-[10px] font-semibold bg-gray-100 text-gray-700 px-2 py-0.5 rounded border border-gray-200">
+                          {feat}
+                        </span>
+                      ))}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex gap-2 pt-2 border-t border-gray-100">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedLocation(location);
+                        }}
+                        className={`flex-1 py-2 font-black text-xs uppercase tracking-wider rounded-lg transition-colors text-center ${
+                          isSelected
+                            ? 'bg-[var(--theme-accent)] text-white shadow-sm'
+                            : 'bg-gray-100 hover:bg-gray-200 text-gray-800'
+                        }`}
+                      >
+                        {isSelected ? 'Viewing on Map' : 'View on Map'}
                       </button>
-                      <button className="flex-1 bg-[#92141f] hover:bg-[#a61723] text-white py-2 font-bold text-xs uppercase tracking-wider transition-colors">
-                        Order
-                      </button>
+
+                      <a
+                        href={location.googleMapsUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="flex-1 border border-[var(--theme-primary)] text-[var(--theme-primary)] hover:bg-[var(--theme-primary)] hover:text-white py-2 font-bold text-xs uppercase tracking-wider rounded-lg transition-colors text-center flex items-center justify-center gap-1"
+                      >
+                        <Navigation size={12} /> Directions
+                      </a>
+
+                      <a
+                        href={`https://wa.me/${location.whatsappNumber}?text=${encodeURIComponent(`Hello Italian Pizza Kawkab, I would like to place an order from ${location.name}.`)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 font-bold text-xs rounded-lg transition-colors flex items-center justify-center gap-1 shadow-sm"
+                        title="Order on WhatsApp"
+                      >
+                        <MessageCircle size={14} />
+                      </a>
                     </div>
                   </div>
-                ))}
-              </div>
+                );
+              })
             ) : (
               <div className="p-8 flex flex-col justify-center items-center text-center h-full">
-                <div className="w-20 h-20 bg-white shadow-sm rounded-full flex items-center justify-center mb-6">
-                  <Search size={32} className="text-gray-300" />
+                <div className="w-16 h-16 bg-white shadow-sm rounded-full flex items-center justify-center mb-4">
+                  <Search size={28} className="text-gray-400" />
                 </div>
-                <p className="text-[#3a1e26] text-lg mb-3 font-bold">
-                  No locations found
+                <p className="text-[var(--theme-primary)] text-base mb-2 font-bold">
+                  No matching Sharjah branch found
                 </p>
-                <p className="text-gray-500 text-sm leading-relaxed max-w-[250px]">
-                  We couldn't find any The Cheesecake Factory restaurants matching "{searchQuery}". Please try searching a different city, state, or zip code.
+                <p className="text-gray-500 text-xs leading-relaxed max-w-[240px]">
+                  Please search for Corniche, Al Majaz, or Al Taawun, or tap "Near You" to view all locations.
                 </p>
               </div>
             )}

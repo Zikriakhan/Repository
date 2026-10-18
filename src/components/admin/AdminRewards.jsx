@@ -57,7 +57,7 @@ export default function AdminRewards() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '28px', flexWrap: 'wrap', gap: '16px' }}>
         <div>
           <h1 style={{ margin: '0 0 4px', fontSize: '26px', fontWeight: 700, color: '#1a0a10' }}>Rewards</h1>
-          <p style={{ margin: 0, color: '#888', fontSize: '14px' }}>Manage Cheesecake Rewards® offers — changes appear live on the Rewards page.</p>
+          <p style={{ margin: 0, color: '#888', fontSize: '14px' }}>Manage Italian pizza kawkabRewards® offers — changes appear live on the Rewards page.</p>
         </div>
         <button onClick={() => setModal({ mode: 'add' })} style={{ padding: '12px 24px', background: 'linear-gradient(135deg,#92141f,#a50e48)', border: 'none', borderRadius: '10px', color: '#fff', fontWeight: 700, fontSize: '14px', cursor: 'pointer', boxShadow: '0 4px 16px rgba(215,19,94,0.3)', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{ fontSize: '18px' }}>+</span> Add Reward

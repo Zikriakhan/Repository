@@ -36,7 +36,7 @@ function App() {
           if (primary) document.documentElement.style.setProperty('--theme-primary', primary);
           if (accent) document.documentElement.style.setProperty('--theme-accent', accent);
           if (light) document.documentElement.style.setProperty('--theme-light', light);
-        } catch (_e) {}
+        } catch (_e) { }
       }
     }
 
@@ -102,7 +102,7 @@ function App() {
     );
   }
 
-  if (currentPath === '/gift-cards') {
+  if (currentPath === '/loyalty-cards') {
     return (
       <div className="min-h-screen bg-[#FFFFFF] font-sans antialiased text-[#1F2937]">
         <Header />

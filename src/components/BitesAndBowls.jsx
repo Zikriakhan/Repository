@@ -8,21 +8,75 @@ const BitesAndBowls = () => {
   const { data } = useAdminData();
   const [addedItem, setAddedItem] = useState(null);
 
-  const allItems = [
-    ...(data.menuItems?.bites || []),
-    ...(data.menuItems?.bowls || [])
-  ].filter(i => i.active !== false);
+  const defaultItems = [
+    {
+      title: "ULTIMATE DOUBLE CHEESE PIZZA",
+      price: "AED 15.95",
+      numPrice: 15.95,
+      rating: 4.9,
+      calories: "940 Cal",
+      desc: "A wood-fired crust loaded with a blend of mozzarella, provolone, and cheddar, pulled fresh for that signature cheese-stretch.",
+      image: "https://images.unsplash.com/photo-1616141215340-34b0e7c661c8?q=80&w=600&auto=format&fit=crop"
+    },
+    {
+      title: "MARGHERITA PIZZA",
+      price: "AED 14.50",
+      numPrice: 14.50,
+      rating: 4.8,
+      calories: "780 Cal",
+      desc: "Classic Italian crust topped with San Marzano tomato sauce, fresh mozzarella di bufala, fresh basil leaves, and extra virgin olive oil.",
+      image: "https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?q=80&w=600&auto=format&fit=crop"
+    },
+    {
+      title: "PEPPERONI FLAME PIZZA",
+      price: "AED 16.95",
+      numPrice: 16.95,
+      rating: 4.9,
+      calories: "890 Cal",
+      desc: "Crispy spicy beef pepperoni slices over melted mozzarella and signature zesty tomato sauce with a sprinkle of oregano.",
+      image: "https://images.unsplash.com/photo-1628840042765-356cda07504e?q=80&w=600&auto=format&fit=crop"
+    },
+    {
+      title: "TRUFFLE MUSHROOM PIZZA",
+      price: "AED 18.50",
+      numPrice: 18.50,
+      rating: 4.8,
+      calories: "820 Cal",
+      desc: "Wild roasted mushrooms, black truffle cream, fontina cheese, fresh thyme, and caramelized onions on artisan wood-fired crust.",
+      image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=600&auto=format&fit=crop"
+    },
+    {
+      title: "BBQ CHICKEN PIZZA",
+      price: "AED 17.50",
+      numPrice: 17.50,
+      rating: 4.7,
+      calories: "860 Cal",
+      desc: "Grilled chicken breast, smoky BBQ sauce, red onions, cilantro, and smoked gouda mozzarella cheese blend.",
+      image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=600&auto=format&fit=crop"
+    }
+  ];
+
+  // Filter ONLY pizza items from admin data
+  const pizzaCategoryItems = data.menuItems?.pizzas || [];
+  const itemsWithPizzaInName = Object.values(data.menuItems || {})
+    .flat()
+    .filter(item => (item.category || '').toLowerCase() === 'pizzas' || (item.name || '').toLowerCase().includes('pizza'));
+
+  const combinedPizzaItems = pizzaCategoryItems.length > 0 ? pizzaCategoryItems : itemsWithPizzaInName;
+  const allItems = combinedPizzaItems.filter(i => i.active !== false);
 
   // Map admin data shape to component shape
-  const items = allItems.map(i => ({
+  const fetchedItems = allItems.map(i => ({
     title: i.name,
-    price: i.price,
-    numPrice: i.numPrice,
-    rating: i.rating,
-    calories: i.calories,
-    desc: i.desc,
-    image: i.image
+    price: i.price ? (typeof i.price === 'number' ? `AED ${i.price.toFixed(2)}` : i.price) : `AED ${(i.numPrice || 15.95).toFixed(2)}`,
+    numPrice: i.numPrice || parseFloat(String(i.price || '0').replace(/[^0-9.-]/g, '')) || 15.95,
+    rating: i.rating || 4.9,
+    calories: i.calories || '850 Cal',
+    desc: i.desc || i.description || 'Wood-fired artisan pizza made fresh with premium ingredients.',
+    image: i.image || 'https://images.unsplash.com/photo-1616141215340-34b0e7c661c8?q=80&w=600&auto=format&fit=crop'
   }));
+
+  const items = fetchedItems.length > 0 ? fetchedItems : defaultItems;
 
   const handleAddToCart = (item) => {
     addToCart({
@@ -85,13 +139,13 @@ const BitesAndBowls = () => {
         {/* Animated Subtitle & Title Header */}
         <div className="animate-fade-up">
           <span className="text-[#3a1e26] font-bold tracking-[0.25em] text-xs uppercase mb-3 inline-block px-4 py-1.5 bg-[#3a1e26]/5 rounded-full border border-[#3a1e26]/10">
-            Find A New Favorite
+            Wood-Fired &amp; Freshly Baked
           </span>
           <h2 className="font-serif text-[#3a1e26] text-5xl md:text-6xl font-bold mb-4 drop-shadow-sm">
-            Bites &amp; Bowls
+            Italian Pizzas
           </h2>
           <p className="text-gray-600 max-w-xl mx-auto text-base mb-14 font-medium">
-            Handcrafted small plates and nutrient-packed bowls prepared fresh from scratch every single day.
+            Handcrafted wood-fired pizzas prepared with fresh mozzarella di bufala and authentic Italian ingredients.
           </p>
         </div>
 
@@ -135,16 +189,21 @@ const BitesAndBowls = () => {
             {items.map((item, index) => (
               <div
                 key={index}
-                className="slider-card snap-start shrink-0 w-full md:w-[calc(50%-1rem)] lg:w-[calc(25%-1.5rem)] bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-gray-100 flex flex-col group relative"
+                onClick={() => {
+                  const itemSlug = item.title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                  window.history.pushState({ name: item.title, image: item.image, description: item.desc, price: item.price }, '', `/menu/pizzas/${itemSlug}`);
+                  window.dispatchEvent(new Event('popstate'));
+                }}
+                className="slider-card snap-start shrink-0 w-full md:w-[calc(50%-1rem)] lg:w-[calc(25%-1.5rem)] bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-gray-100 flex flex-col group relative cursor-pointer"
               >
                 {/* Image Container with Zoom Animation & Badges */}
                 <div className="relative overflow-hidden h-64 bg-gray-100">
                   <img
-                    src={item.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&auto=format&fit=crop'}
+                    src={item.image || 'https://images.unsplash.com/photo-1616141215340-34b0e7c661c8?q=80&w=600&auto=format&fit=crop'}
                     alt={item.title}
                     onError={(e) => {
                       e.target.onerror = null;
-                      e.target.src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&auto=format&fit=crop';
+                      e.target.src = 'https://images.unsplash.com/photo-1616141215340-34b0e7c661c8?q=80&w=600&auto=format&fit=crop';
                     }}
                     className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ease-out"
                   />
@@ -185,7 +244,10 @@ const BitesAndBowls = () => {
                     <span className="font-serif font-bold text-xl text-[#3a1e26]">{item.price}</span>
 
                     <button
-                      onClick={() => handleAddToCart(item)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAddToCart(item);
+                      }}
                       className={`flex items-center gap-2 px-4 py-2.5 rounded-full font-sans text-xs font-bold uppercase tracking-wider transition-all duration-300 shadow-sm ${addedItem === item.title
                         ? 'bg-emerald-600 text-white scale-105'
                         : 'bg-[#3a1e26] hover:bg-[#92141f] text-white hover:shadow-lg'
@@ -216,7 +278,7 @@ const BitesAndBowls = () => {
           onClick={(e) => navigateTo(e, '/BrowseMenu')}
           className="bg-[#92141f] hover:bg-[#09481f] text-white font-bold tracking-[0.2em] uppercase px-10 py-4 text-xs transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 inline-flex items-center gap-3 rounded-none group"
         >
-          <span>EXPLORE FULL MENU</span>
+          <span>EXPLORE ALL PIZZAS</span>
           <ShoppingBag size={16} className="transform group-hover:translate-x-1 transition-transform" />
         </button>
 
@@ -226,3 +288,5 @@ const BitesAndBowls = () => {
 };
 
 export default BitesAndBowls;
+
+
